@@ -1,0 +1,60 @@
+DATA: gv_sayi TYPE i.
+" IF-ENDIF-Schleifen
+
+IF gv_sayi < 100.
+  WRITE: 'Girilen sayı 100''den küçüktür.'.
+ELSEIF gv_sayi = 100.
+  WRITE: 'Girilen sayı 100''e eşittir.'.
+ELSEIF gv_sayi > 100.
+  WRITE: 'Girilen sayı 100''den büyüktür.'.
+ENDIF.
+
+" DO-ENDDO-Schleifen
+
+DATA: gv_int TYPE i.
+
+DO 20  TIMES.
+  gv_int = gv_int + 1.
+ENDDO.
+ 
+DO.
+  gv_int = gv_int + 2.
+
+  IF gv_int = 20.
+    EXIT.
+  ENDIF.
+ENDDO.
+
+" WHILE-ENDWHILE-chleifen
+PARAMETERS: p_num TYPE i.
+DATA: gv_counter TYPE i.
+            
+WHILE p_num < 500.
+  p_num = p_num + 10.
+  gv_counter = gv_counter + 1.
+ENDWHILE.
+
+" CASE-ENDCASE-Schleifen
+PARAMETERS: p_day TYPE n.
+
+DATA: gv_day TYPE string,
+      gv_msg TYPE string.
+
+CASE p_day.
+  WHEN 1.
+    gv_day = 'Montag'.
+  WHEN 2.    
+    gv_day = 'Dienstag'.
+  WHEN 3.    
+    gv_day = 'Mittwoch'.
+  WHEN 4.    
+    gv_day = 'Donnerstag'.
+  WHEN 5.    
+    gv_day = 'Freitag'.
+  WHEN 6.    
+    gv_day = 'Samstag'.
+  WHEN 7.    
+    gv_day = 'Sonntag'.
+  WHEN OTHERS.
+    MESSAGE TEXT-001 TYPE 'S' DISPLAY LIKE 'E'.
+ENDCASE.
