@@ -1,0 +1,36 @@
+PARAMETERS: p_text    TYPE c LENGTH 20,
+            p_numc    TYPE n LENGTH 6,
+            p_intgr   TYPE i,
+            p_dec     TYPE p DECIMALS 4,
+            p_string  TYPE string,
+            p_date    TYPE datum,
+            p_time    TYPE uzeit.
+WRITE: / p_text, / p_numc, / p_intgr,/ p_dec,
+       / p_string, / p_date, / p_time.
+
+PARAMETERS: p_rbd_01 RADIOBUTTON GROUP abc,
+            p_rbd_02 RADIOBUTTON GROUP abc,
+            p_rbd_03 RADIOBUTTON GROUP abc,
+            p_rbd_04 RADIOBUTTON GROUP abc,
+            p_rbd_05 RADIOBUTTON GROUP abc,
+            p_rbd_06 RADIOBUTTON GROUP abc,
+            p_cbx_01 AS CHECKBOX,
+            p_cbx_02 AS CHECKBOX,
+            p_cbx_03 AS CHECKBOX.
+
+DATA: gv_integer TYPE i VALUE 50.
+IF gv_integer < 100.
+  WRITE: 'Die eingegebene Zahl ist kleiner als 100.'.
+ELSEIF gv_integer = 100.
+  WRITE: 'Die eingegebene Zahl ist gleich 100.'.
+ELSEIF gv_integer > 100.
+  WRITE: 'Die eingegebene Zahl ist größer als 100.'.
+ENDIF.
+
+DATA: gv_number_01 TYPE n LENGTH 3 VALUE 20.
+DATA: gv_number_02 TYPE n LENGTH 3 VALUE 30.
+IF gv_number_01 = gv_number_02.
+  WRITE: 'Zwei Zahlen sind einander gleich.'.
+ELSE.
+  WRITE: 'Die beiden Zahlen sind einander nicht gleich.'.
+ENDIF.
