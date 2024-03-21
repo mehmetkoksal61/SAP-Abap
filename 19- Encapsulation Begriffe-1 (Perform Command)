@@ -1,0 +1,214 @@
+SELECTION-SCREEN BEGIN OF BLOCK a1 WITH FRAME TITLE TEXT-001.
+  PARAMETERS: p_num_01 TYPE i,
+              p_num_02 TYPE i.
+SELECTION-SCREEN END OF BLOCK a1.
+
+DATA: gv_result TYPE i.
+
+START-OF-SELECTION.
+PERFORM sum.
+WRITE: 'Toplam : ', gv_result.
+
+FORM sum .
+  gv_result = p_num_01 + p_num_02.
+ENDFORM.
+
+*************************************************************
+
+SELECTION-SCREEN BEGIN OF BLOCK a1 WITH FRAME TITLE TEXT-001.
+  PARAMETERS: p_num_01 TYPE i,
+              p_num_02 TYPE i.
+SELECTION-SCREEN END OF BLOCK a1.
+
+START-OF-SELECTION.
+PERFORM sum.
+
+FORM sum .
+  DATA: lv_result TYPE i.
+  lv_result = p_num_01 + p_num_02.
+  WRITE: 'Toplam : ', lv_result.
+ENDFORM.
+
+*************************************************************
+
+SELECTION-SCREEN BEGIN OF BLOCK a1 WITH FRAME TITLE TEXT-001 NO INTERVALS.
+  PARAMETERS: p_num_01 TYPE i,
+              p_num_02 TYPE i,
+              p_topla  RADIOBUTTON GROUP abc,
+              p_cikar  RADIOBUTTON GROUP abc,
+              p_carp   RADIOBUTTON GROUP abc,
+              p_bol    RADIOBUTTON GROUP abc.
+SELECTION-SCREEN END OF BLOCK a1.
+
+DATA: gv_kontrol_ok TYPE c LENGTH 1,
+      gv_sonuc      TYPE p DECIMALS 2.
+
+START-OF-SELECTION.
+
+  PERFORM kontrol.
+
+
+  IF p_topla = abap_true.
+    PERFORM toplam.
+  ELSEIF p_cikar = abap_true.
+    PERFORM cikarma.
+  ELSEIF p_carp = abap_true.
+    PERFORM carpma.
+  ELSEIF p_bol = abap_true.
+    IF gv_kontrol_ok = abap_true.
+      PERFORM bolme.
+    ELSE.
+      MESSAGE 'Bei der Division darf der Divisor nicht 0 sein.' TYPE 'S' DISPLAY LIKE 'E'.
+    ENDIF.
+  ENDIF.
+  WRITE: 'Ergebnis : ', gv_sonuc.
+
+
+FORM kontrol .
+  IF p_bol = abap_true.
+    IF p_num_02 NE 0.
+      gv_kontrol_ok = abap_true.
+    ENDIF.
+  ENDIF.
+ENDFORM.
+**&---------------------------------------------------------------------*
+**& Form toplam
+**&---------------------------------------------------------------------*
+**& text
+**&---------------------------------------------------------------------*
+**& -->  p1        text
+**& <--  p2        text
+**&---------------------------------------------------------------------*
+FORM toplam .
+  gv_sonuc = p_num_01 + p_num_02.
+ENDFORM.
+**&---------------------------------------------------------------------*
+**& Form cikarma
+**&---------------------------------------------------------------------*
+**& text
+**&---------------------------------------------------------------------*
+**& -->  p1        text
+**& <--  p2        text
+**&---------------------------------------------------------------------*
+FORM cikarma .
+  gv_sonuc = p_num_01 - p_num_02.
+ENDFORM.
+**&---------------------------------------------------------------------*
+**& Form carpma
+**&---------------------------------------------------------------------*
+**& text
+**&---------------------------------------------------------------------*
+**& -->  p1        text
+**& <--  p2        text
+**&---------------------------------------------------------------------*
+FORM carpma .
+  gv_sonuc = p_num_01 * p_num_02.
+ENDFORM.
+**&---------------------------------------------------------------------*
+**& Form bolme
+**&---------------------------------------------------------------------*
+**& text
+**&---------------------------------------------------------------------*
+**& -->  p1        text
+**& <--  p2        text
+**&---------------------------------------------------------------------*
+FORM bolme .
+  gv_sonuc = p_num_01 / p_num_02.
+ENDFORM.
+
+**************************************************
+
+DATA: gv_num1 TYPE i VALUE 2,
+      gv_num2 TYPE i VALUE 4.
+
+START-OF-SELECTION.
+PERFORM sum.
+
+FORM sum .
+  DATA: lv_sum TYPE i.
+  lv_sum = gv_num1 + gv_num2.
+  PERFORM write USING lv_sum.
+ENDFORM.
+
+FORM write  USING    p_lv_sum.
+  WRITE: 'Toplam : ', p_lv_sum.
+ENDFORM.
+
+*********************************************************
+
+DATA: gv_carrname TYPE scarr-carrname,
+      gs_scarr    TYPE scarr,
+      gt_scarr    TYPE TABLE OF scarr.
+
+SELECTION-SCREEN BEGIN OF BLOCK a1 WITH FRAME TITLE TEXT-001.
+  SELECT-OPTIONS: so_cname FOR gv_carrname.
+SELECTION-SCREEN END OF BLOCK a1.
+
+START-OF-SELECTION.
+
+  SELECT * FROM scarr INTO TABLE gt_scarr
+    WHERE carrname IN so_cname.
+
+  IF gt_scarr IS NOT INITIAL.
+    LOOP AT gt_scarr INTO gs_scarr.
+      WRITE: gs_scarr-carrid,
+             gs_scarr-carrname,
+             gs_scarr-currcode,
+             gs_scarr-url.
+      CLEAR: gs_scarr.
+    ENDLOOP.
+  ELSE.
+    RETURN.
+  ENDIF.
+
+****************************************************************
+
+DATA: gv_answer TYPE c.
+
+SELECTION-SCREEN BEGIN OF BLOCK a1 WITH FRAME TITLE TEXT-001 NO INTERVALS.
+  PARAMETERS: p_title TYPE char100,
+              p_quest TYPE char100,
+              p_but1  TYPE char30,
+              p_but2  TYPE char30.
+SELECTION-SCREEN END OF BLOCK a1.
+
+START-OF-SELECTION.
+
+PERFORM popup_confirm USING p_title p_quest p_but1 p_but2
+                      CHANGING gv_answer.
+
+PERFORM write USING gv_answer.
+
+FORM popup_confirm  USING    p_p_title
+                             p_p_quest
+                             p_p_but1
+                             p_p_but2
+                    CHANGING p_gv_answer.
+CALL FUNCTION 'POPUP_TO_CONFIRM'
+  EXPORTING
+   TITLEBAR                    = p_p_title
+    text_question               = p_p_quest
+   TEXT_BUTTON_1               = p_but1
+   ICON_BUTTON_1               = 'ICON_OKAY'
+   TEXT_BUTTON_2               = p_but2
+   ICON_BUTTON_2               = 'ICON_CANCEL'
+   DEFAULT_BUTTON              = '2'
+   DISPLAY_CANCEL_BUTTON       = ' '
+   START_COLUMN                = 25
+   START_ROW                   = 6
+ IMPORTING
+   ANSWER                      = p_gv_answer
+ EXCEPTIONS
+   TEXT_NOT_FOUND              = 1
+   OTHERS                      = 2 .
+ENDFORM.
+
+FORM write  USING    p_gv_answer.
+  CHECK p_gv_answer IS NOT INITIAL.
+
+  IF p_gv_answer EQ 1.
+    WRITE: 'Sıe haben auf den ersten Button geklickt!'.
+  ELSEIF p_gv_answer EQ 2.
+    WRITE: 'Sie haben auf den zweiten Button geklickt!'.
+  ENDIF.
+ENDFORM.
