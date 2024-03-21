@@ -1,0 +1,29 @@
+TYPES: BEGIN OF gty_structure,
+          id      TYPE n LENGTH 8,
+          name    TYPE c LENGTH 40,
+          surname TYPE c LENGTH 40,
+          job     TYPE c LENGTH 20,
+          salary  TYPE i,
+          curr    TYPE c LENGTH 3,
+          gsm     TYPE string,
+          e_mail  TYPE string,
+       END OF gty_structure.
+       
+DATA: gs_structure TYPE gty_structure.
+gs_structure-id      = 20240001.
+gs_structure-name    = 'Mehmet'.
+gs_structure-surname = 'Köksal'.
+gs_structure-job     = 'Ingenieur'.
+gs_structure-salary  = 3500.
+gs_structure-curr    = 'EUR'.
+gs_structure-gsm     = '+49111111111'.
+gs_structure-e_mail  = 'mehmet@gmail.com'.
+
+WRITE:/ gs_structure-id     ,
+      / gs_structure-name   ,
+      / gs_structure-surname,
+      / gs_structure-job    ,
+      / gs_structure-salary ,
+      / gs_structure-curr   ,
+      / gs_structure-gsm    ,
+      / gs_structure-e_mail .
