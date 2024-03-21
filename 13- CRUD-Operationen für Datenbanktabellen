@@ -1,0 +1,78 @@
+" CRUD-Operationen für Datenbanktabellen, SELECT, SELECT COUNT, SELECT MAX, INSERT, UPDATE-SET, DELETE FROM
+
+DATA: gs_str   TYPE zmk_tbl_001,
+      gt_table TYPE TABLE OF zmk_tbl_001.
+      
+SELECT SINGLE * FROM zmk_tbl_001 INTO gs_str WHERE id = '0020240004'.
+
+WRITE: gs_str-id, gs_str-name, gs_str-surname, gs_str-job,
+       gs_str-salary, gs_str-curr, gs_str-gsm, gs_str-e_mail.
+
+TYPES: BEGIN OF gty_table,
+         firma TYPE c LENGTH 3,
+         web   TYPE c LENGTH 255,
+       END OF gty_table.
+       
+DATA: gs_str   TYPE gty_table,
+      gt_table TYPE TABLE OF gty_table.
+      
+START-OF-SELECTION.
+
+SELECT carrid url FROM scarr INTO TABLE gt_table UP TO 5 ROWS.
+
+  LOOP AT gt_table INTO gs_str.
+    WRITE: gs_str-firma, gs_str-web.
+    SKIP.
+  ENDLOOP.
+
+************************************************************
+
+" Wenn die Zeilenstruktur der Tabelle, aus der Daten gelesen werden, und der internen Tabelle nicht identisch ist
+
+SELECT carrid url FROM scarr INTO CORRESPONDING FIELDS OF 
+                             TABLE gt_table UP TO 3 ROWS.
+  LOOP AT gt_table INTO gs_structure.
+    WRITE: gs_structure-carrid, gs_structure-url.
+    SKIP. ULINE.
+  ENDLOOP. 
+***********************************************************
+
+PARAMETERS: p_city TYPE city LOWER CASE.
+DATA: gv_number TYPE n LENGTH 2.
+SELECT COUNT(*) FROM zcm_stravelag INTO gv_number 
+  WHERE city = p_city.
+
+**********************************************************
+
+DATA: gv_id        TYPE zcm_de_yeni_id,
+      gv_number    TYPE s_agncynum,
+      gs_stravelag TYPE zcm_stravelag.
+  SELECT MAX( id ) FROM zcm_stravelag INTO gv_id.
+  SELECT MAX( agencynum ) FROM zcm_stravelag INTO gv_number.
+
+**********************************************************
+" INSERT Command und seine Verwendung
+gs_structure-id      = '20240005'.
+gs_structure-name    = 'Nevzat'.
+gs_structure-surname = 'Değirmenci'.
+gs_structure-job     = 'Lehrer'.
+gs_structure-salary  = 3000.
+gs_structure-curr    = 'EUR'.
+gs_structure-gsm     = '+491766660'.
+gs_structure-e_mail  = 'nevzat@gmail.com'.
+INSERT zmk_table_001 FROM gs_structure.
+
+**********************************************************
+
+Update – Set Command
+UPDATE zmk_table_001 SET salary = 45000
+                         curr   = 'USD'
+                      WHERE id = '20240005'.
+
+**********************************************************
+
+Delete Command
+DELETE FROM zmk_table_001 WHERE id = '20240005'.
+
+
+  
