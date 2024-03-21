@@ -1,0 +1,64 @@
+  DATA: gv_char_01 TYPE c  LENGTH 40.
+	DATA: gv_char_02 TYPE c  LENGTH 10.
+	DATA: gv_char_03 TYPE c  LENGTH 10.
+	
+	gv_char_01 = 'Merhaba, kurusmuza hoş geldiniz.'.
+	gv_char_02 = '30'.
+	gv_char_03 = gv_char_02 * 4.
+	WRITE: gv_char_01, / gv_char_02, / gv_char_03.
+
+	DATA: gv_number_01 TYPE n LENGTH 5.
+	DATA: gv_number_02 TYPE n LENGTH 5.
+	DATA: gv_number_03 TYPE n LENGTH 10.
+	DATA: gv_number_04 TYPE n LENGTH 10.
+	
+	gv_number_01 = '20'.
+	gv_number_02 = 30.
+	gv_number_03 = gv_number_01 + gv_number_02.
+	gv_number_04 = 'TEXT'.
+	
+	WRITE: / gv_number_01, / gv_number_02, / gv_number_03, / gv_number_04.
+	DATA: gv_integer_01 TYPE i.
+	DATA: gv_integer_02 TYPE i.
+	DATA: gv_integer_03 TYPE i.
+	
+	gv_integer_01 = '5'.
+	gv_integer_02 = 10.
+	gv_integer_03 = gv_integer_01 * gv_integer_02.
+	
+	WRITE: / gv_integer_01, / gv_integer_02, / gv_integer_03.
+	DATA: gv_integer_05 TYPE i.
+	DATA: gv_integer_06 TYPE i.
+	DATA: gv_decimal    TYPE p DECIMALS 3.
+	
+	gv_integer_05 = 755555.
+	gv_integer_06 = 2.
+	gv_decimal    = gv_integer_05 / gv_integer_06.
+	
+	WRITE: gv_decimal.
+  DATA: gv_string TYPE string.
+	gv_string = 'UYYYYYY Uşağım nasisun eyisundur inşallah.'.
+	
+	WRITE: gv_string, /.
+	DATA: gv_date_01 TYPE datum.
+	DATA: gv_date_02 TYPE datum.
+	DATA: gv_date_03 TYPE datum.
+	
+	gv_date_01 = '20240123'.
+	gv_date_02 = gv_date_01 + 20.
+	gv_date_03 = gv_date_01 - 20.
+	
+	WRITE: / gv_date_01, / gv_date_02, / gv_date_03, /.
+	DATA: gv_time_01 TYPE uzeit.
+	DATA: gv_time_02 TYPE uzeit.
+	DATA: gv_time_03 TYPE uzeit.
+	DATA: gv_time_04 TYPE uzeit.
+	DATA: gv_time_05 TYPE uzeit.
+	
+	gv_time_01 = '234555'.
+	gv_time_02 = gv_time_01 - 15.
+	gv_time_03 = gv_time_01 + 15.
+	gv_time_04 = '092300'.
+	gv_time_05 = gv_time_04 - gv_time_01.
+	
+	WRITE: gv_time_01, / gv_time_02, / gv_time_03, / gv_time_04, / gv_time_05, /.
