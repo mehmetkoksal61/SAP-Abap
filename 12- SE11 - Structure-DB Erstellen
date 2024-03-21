@@ -1,0 +1,44 @@
+DATA: gs_str   TYPE zmk_str_001,
+      gt_table TYPE TABLE OF zmk_str_001.
+
+START-OF-SELECTION.
+
+gs_str-id      = '20240003'.
+gs_str-name    = 'Mehmet'.
+gs_str-surname = 'Köksal'.
+gs_str-job     = 'Ingenieur'.
+gs_str-salary  = 3500.
+gs_str-curr    = 'EUR'.
+gs_str-gsm     = '+491111111'.
+gs_str-e_mail  = 'mehmet@gmail.com'.
+APPEND gs_str TO gt_table.
+CLEAR: gs_str.
+
+gs_str-id      = '20240001'.
+gs_str-name    = 'Habibe'.
+gs_str-surname = 'Köksal'.
+gs_str-job     = 'Lehrer'.
+gs_str-salary  = 4000.
+gs_str-curr    = 'EUR'.
+gs_str-gsm     = '+49222222'.
+gs_str-e_mail  = 'habibe@gmail.com'.
+APPEND gs_str TO gt_table.
+CLEAR: gs_str.
+
+gs_str-id      = '20240002'.
+gs_str-name    = 'Ömer'.
+gs_str-surname = 'Köksal'.
+gs_str-job     = 'Schüler'.
+gs_str-salary  = 1000.
+gs_str-curr    = 'EUR'.
+gs_str-gsm     = '+493333333'.
+gs_str-e_mail  = 'ozmer@gmail.com'.
+APPEND gs_str TO gt_table.
+CLEAR: gs_str.
+
+LOOP AT gt_table INTO gs_str.
+  WRITE:   gs_str-id, gs_str-name, gs_str-surname,
+           gs_str-job, gs_str-salary, gs_str-curr,
+           gs_str-gsm, gs_str-e_mail.
+  SKIP. ULINE.
+ENDLOOP.
