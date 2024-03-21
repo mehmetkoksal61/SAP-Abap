@@ -1,0 +1,119 @@
+DATA: gs_str TYPE zmk_tbl_001,
+      gt_table TYPE TABLE OF zmk_tbl_001.
+      
+SELECTION-SCREEN BEGIN OF BLOCK a1 WITH FRAME TITLE TEXT-001 NO INTERVALS.
+  PARAMETERS: p_id    TYPE zmk_tbl_001-id,
+              p_name  TYPE zmk_tbl_001-name,
+              p_sname TYPE zmk_tbl_001-surname,
+              p_job   TYPE zmk_tbl_001-job,
+              p_slry  TYPE zmk_tbl_001-salary,
+              p_curr  TYPE zmk_tbl_001-curr,
+              p_gsm   TYPE zmk_tbl_001-gsm,
+              p_email TYPE zmk_tbl_001-e_mail,
+              p_create RADIOBUTTON GROUP abc,
+              p_read   RADIOBUTTON GROUP abc,
+              p_update RADIOBUTTON GROUP abc,
+              p_delete RADIOBUTTON GROUP abc.
+SELECTION-SCREEN END OF BLOCK a1.
+
+START-OF-SELECTION.
+
+IF p_create = abap_true.
+  IF p_id IS INITIAL.
+    MESSAGE 'Lassen Sie das ID-Feld nicht leer.' TYPE 'S' DISPLAY LIKE 'E'.
+  ELSE.
+    SELECT SINGLE * FROM zmk_tbl_001 INTO gs_str WHERE id = p_id.
+      IF sy-subrc IS INITIAL.
+        MESSAGE 'Eine Zeile mit Bezug zur ID kann nicht hinzugefügt werden.' TYPE 'S' DISPLAY LIKE 'E'.
+      ELSE.
+        gs_str-id      = p_id   .
+        gs_str-name    = p_name .
+        gs_str-surname = p_sname.
+        gs_str-job     = p_job  .
+        gs_str-salary  = p_slry .
+        gs_str-curr    = p_curr .
+        gs_str-gsm     = p_gsm  .
+        gs_str-e_mail  = p_email.
+        INSERT zmk_tbl_001 FROM gs_str.
+        IF sy-subrc IS INITIAL.
+          MESSAGE 'Registrierung erfolgreich.' TYPE 'S'.
+        ELSE.
+          MESSAGE 'Registrierung nicht erfolgreich.' TYPE 'S' DISPLAY LIKE 'E'.
+        ENDIF.
+      ENDIF.
+    CLEAR: gs_str.
+  ENDIF.
+ELSEIF p_read = abap_true.
+  IF p_id IS INITIAL.
+    SELECT * FROM zmk_tbl_001 INTO TABLE gt_table.
+      IF sy-subrc IS INITIAL.
+        LOOP AT gt_table INTO gs_str.
+          WRITE: gs_str-id     ,
+                 gs_str-name   ,
+                 gs_str-surname,
+                 gs_str-job    ,
+                 gs_str-salary ,
+                 gs_str-curr   ,
+                 gs_str-gsm    ,
+                 gs_str-e_mail .
+          CLEAR: gs_str.
+          SKIP. ULINE.
+        ENDLOOP.
+      ELSE.
+        MESSAGE 'Keine Aufzeichnungen gefunden.' TYPE 'I'.
+      ENDIF.
+  ELSE.
+    SELECT SINGLE * FROM zmk_tbl_001 INTO gs_str WHERE id = p_id.
+      IF sy-subrc IS INITIAL.
+        WRITE: gs_str-id     ,
+               gs_str-name   ,
+               gs_str-surname,
+               gs_str-job    ,
+               gs_str-salary ,
+               gs_str-curr   ,
+               gs_str-gsm    ,
+               gs_str-e_mail .
+        CLEAR: gs_str.
+      ELSE.
+        MESSAGE 'Keine Daten gefunden.' TYPE 'S' DISPLAY LIKE 'E'.
+      ENDIF.
+  ENDIF.
+ELSEIF p_update = abap_true.
+  IF p_id IS INITIAL.
+    MESSAGE 'Das Update konnte nicht durchgeführt werden.' TYPE 'S' DISPLAY LIKE 'E'.
+  ELSE.
+    SELECT SINGLE * FROM zmk_tbl_001 INTO gs_str WHERE id = p_id.
+      IF sy-subrc IS INITIAL.
+        UPDATE zmk_tbl_001 SET name    = p_name
+                               surname = p_sname
+                               job     = p_job
+                               salary  = p_slry
+                               curr    = p_curr
+                               gsm     = p_gsm
+                               e_mail  = p_email WHERE id = p_id.
+        IF sy-subrc IS INITIAL.
+          MESSAGE 'Aktualisierung erfolgreich.' TYPE 'S'.
+        ELSE.
+          MESSAGE 'Aktualisierung nicht erfolgreich.' TYPE 'S' DISPLAY LIKE 'E'.
+        ENDIF.
+      ELSE.
+        MESSAGE 'Keine Daten gefunden.' TYPE 'S' DISPLAY LIKE 'E'.
+      ENDIF.
+  ENDIF.
+ELSEIF p_delete = abap_true.
+  IF sy-subrc IS INITIAL.
+    MESSAGE 'Ohne ID ist eine Löschung nicht möglich.' TYPE 'S' DISPLAY LIKE 'E'.
+  ELSE.
+    SELECT SINGLE * FROM zmk_tbl_001 INTO gs_str WHERE id = p_id.
+      IF sy-subrc IS INITIAL.
+        DELETE FROM zmk_tbl_001 WHERE id = p_id.
+        IF sy-subrc IS INITIAL.
+          MESSAGE 'Löschung erfolgreich.' TYPE 'S'.
+        ELSE.
+          MESSAGE 'Löschung nicht erfolgreich.' TYPE 'S' DISPLAY LIKE 'E'.
+        ENDIF.
+      ELSE.
+        MESSAGE 'Keine Daten gefunden.' TYPE 'S' DISPLAY LIKE 'E'.
+      ENDIF.
+  ENDIF.
+ENDIF.
