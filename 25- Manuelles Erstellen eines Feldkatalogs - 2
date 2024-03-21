@@ -1,0 +1,85 @@
+" Erstellen von ALV durch Erstellen eines Feldkatalogs ohne Verwendung einer Datenbanktabelle Methode 2
+
+TYPES: BEGIN OF gty_stravelag,
+         agencynum TYPE s_agncynum,
+         name      TYPE s_agncynam,
+         city      TYPE city,
+         country   TYPE s_country,
+         telephone TYPE s_phoneno,
+         url       TYPE s_url,
+       END OF gty_stravelag.
+
+DATA: gt_stravelag TYPE TABLE OF gty_stravelag,
+      gs_stravelag TYPE gty_stravelag,
+      gt_fieldcat  TYPE lvc_t_fcat,
+      gs_fieldcat  TYPE lvc_s_fcat,
+      gs_layout    TYPE lvc_s_layo.
+
+START-OF-SELECTION.
+
+PERFORM select.
+PERFORM fcat.
+PERFORM layout.
+PERFORM show_alv.
+
+FORM select.
+  SELECT * FROM stravelag
+    INTO CORRESPONDING FIELDS OF TABLE gt_stravelag.
+ENDFORM.
+
+FORM fcat.
+  gs_fieldcat-fieldname = 'AGENCYNUM'.
+  gs_fieldcat-scrtext_m = 'Seyahat Acentesi Numarası'.
+  gs_fieldcat-key       = abap_true.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR: gs_fieldcat.
+
+  gs_fieldcat-fieldname = 'NAME'.
+  gs_fieldcat-scrtext_m = 'Seyahat Acentesi İsmi'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR: gs_fieldcat.
+
+  gs_fieldcat-fieldname = 'CITY'.
+  gs_fieldcat-scrtext_m = 'Sehir'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR: gs_fieldcat.
+
+  gs_fieldcat-fieldname = 'COUNTRY'.
+  gs_fieldcat-scrtext_m = 'Ulke'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR: gs_fieldcat.
+
+  gs_fieldcat-fieldname = 'TELEPHONE'.
+  gs_fieldcat-scrtext_m = 'GSM'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR: gs_fieldcat.
+
+  gs_fieldcat-fieldname = 'URL'.
+  gs_fieldcat-scrtext_m = 'Web Adresi'.
+  APPEND gs_fieldcat TO gt_fieldcat.
+  CLEAR: gs_fieldcat.
+
+ENDFORM.
+
+FORM layout.
+  gs_layout-zebra      = abap_true.
+  gs_layout-cwidth_opt = abap_true.
+  gs_layout-sel_mode   = 'A'.
+ENDFORM.
+
+FORM show_alv.
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY_LVC'
+   EXPORTING
+     I_CALLBACK_PROGRAM                = sy-repid
+     IS_LAYOUT_LVC                     = gs_layout
+     IT_FIELDCAT_LVC                   = gt_fieldcat
+    TABLES
+      t_outtab                          = gt_stravelag
+   EXCEPTIONS
+     PROGRAM_ERROR                     = 1
+     OTHERS                            = 2 .
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+
+ENDFORM.
