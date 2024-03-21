@@ -1,0 +1,76 @@
+DATA: gv_num1 TYPE n LENGTH 2 VALUE 70.
+DATA: gv_num2 TYPE n LENGTH 2.
+IF gv_num1 > 50.
+  gv_num2 = gv_num1 + 10.
+  WRITE: 'Sayi 2 : ', gv_num2.
+  MESSAGE 'Die Operation war erfolgreich.' TYPE 'S'.
+ENDIF.
+
+" Information Message 
+
+DATA: gv_num TYPE n LENGTH 2 VALUE 20.
+IF gv_num > 50.
+  MESSAGE 'Die von Ihnen eingegebene Zahl ist größer als 50.' TYPE 'I'.
+ELSEIF gv_num = 50.
+  MESSAGE 'Die von Ihnen eingegebene Zahl ist gleich 50.' TYPE 'I'.
+ELSE.
+  MESSAGE 'Die von Ihnen eingegebene Zahl ist kleiner als 50.' TYPE 'I'.
+ENDIF.
+
+PARAMETERS: p_txt_01 TYPE c LENGTH 10,
+            p_txt_02 TYPE c LENGTH 10,
+            p_txt_03 TYPE c LENGTH 10.
+DATA: gv_text TYPE c LENGTH 10.
+
+gv_text = p_txt_01.
+MESSAGE gv_text TYPE 'I'.
+CLEAR: gv_text.
+
+gv_text = p_txt_02.
+MESSAGE gv_text TYPE 'I'.
+CLEAR: gv_text.
+
+gv_text = p_txt_03.
+MESSAGE gv_text TYPE 'I'.
+CLEAR: gv_text.
+
+" Error Message 
+PARAMETERS: p_num_01 TYPE i,
+            p_num_02 TYPE i.
+DATA: gv_result TYPE i.
+IF p_num_01 = 0 AND p_num_02 = 0.
+  MESSAGE 'Bitte füllen Sie die Felder aus.' TYPE 'S' DISPLAY LIKE 'E'.
+ENDIF.
+gv_result = p_num_01 + p_num_02.
+WRITE: 'Ergebnis : ', gv_result.
+
+" Warning Message 
+PARAMETERS: p_num1 TYPE i,
+            p_num2 TYPE i.
+DATA: gv_sonuc TYPE i.
+IF p_num1 = 0 AND p_num2 = 0.
+  MESSAGE 'Bitte füllen Sie die Felder aus.' TYPE 'W'.
+ENDIF.
+gv_sonuc = p_num1 + p_num2.
+WRITE: 'Sonuc : ', gv_sonuc.
+
+" Abort Message 
+PARAMETERS: p_name  TYPE c LENGTH 20,
+            p_sname TYPE c LENGTH 20.
+DATA: gv_fullname TYPE c LENGTH 40.
+IF p_name IS INITIAL AND p_sname IS INITIAL.
+  MESSAGE 'Bitte füllen Sie die Felder aus.' TYPE 'A'.
+ENDIF.
+CONCATENATE p_name p_sname INTO gv_fullname.
+WRITE: gv_fullname.
+
+" Exit Message 
+
+PARAMETERS: p_num1 TYPE i,
+            p_num2 TYPE i.
+DATA: gv_sonuc TYPE i.
+IF p_num2 = 0.
+  MESSAGE 'Es wurde eine unmögliche Transaktionsanforderung festgestellt.' TYPE 'X'.
+ENDIF.
+gv_sonuc = p_num1 / p_num2.
+WRITE: 'Ergebnis : ', gv_sonuc.
