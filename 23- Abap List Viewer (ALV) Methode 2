@@ -1,0 +1,44 @@
+" Kombination aus LVC_FIELDCATALOG_MERGE ve REUSE_ALV_GRID_DISPLAY_LVC 
+
+DATA: gt_table    TYPE TABLE OF zmk_table_002,
+      gt_fieldcat TYPE lvc_t_fcat,
+      gs_layout   TYPE lvc_s_layo.
+
+START-OF-SELECTION.
+
+SELECT * FROM zmk_table_002
+  INTO TABLE gt_table.
+
+  CALL FUNCTION 'LVC_FIELDCATALOG_MERGE'
+   EXPORTING
+     I_STRUCTURE_NAME             = 'ZMK_TABLE_002'
+     I_BYPASSING_BUFFER           = abap_true
+    CHANGING
+      ct_fieldcat                  = gt_fieldcat
+   EXCEPTIONS
+     INCONSISTENT_INTERFACE       = 1
+     PROGRAM_ERROR                = 2
+     OTHERS                       = 3 .
+
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+
+  gs_layout-zebra      = abap_true.
+  gs_layout-cwidth_opt = abap_true.
+  gs_layout-sel_mode   = 'A'.
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY_LVC'
+   EXPORTING
+     I_CALLBACK_PROGRAM                = sy-repid
+     IS_LAYOUT_LVC                     = gs_layout
+     IT_FIELDCAT_LVC                   = gt_fieldcat
+    TABLES
+      t_outtab                          = gt_table
+   EXCEPTIONS
+     PROGRAM_ERROR                     = 1
+     OTHERS                            = 2 .
+
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
