@@ -1,0 +1,36 @@
+SELECTION-SCREEN BEGIN OF BLOCK a1 WITH FRAME TITLE TEXT-001.
+  PARAMETERS: p_carrid TYPE spfli-carrid,
+              p_connid TYPE spfli-connid,
+              p_dtime  TYPE spfli-deptime,
+              p-atime  TYPE spfli-arrtime.
+SELECTION-SCREEN END OF BLOCK a1.
+
+DATA: gs_spfli          TYPE spfli,
+      gv_fltime         TYPE i,
+      gv_fltime_changed TYPE boolean.
+
+START-OF-SELECTION.
+
+SELECT * FROM spfli INTO gs_spfli 
+       WHERE carrid = p_carrid AND connid = p_connid.
+
+  IF gs_spfli IS NOT INITIAL.
+
+    WRITE: gs_spfli-fltime,    gs_spfli-deptime.
+    CALL FUNCTION 'ZMK_FM_06'
+      EXPORTING
+        iv_dep_time             = p_dtime
+        iv_arr_time             = p-atime
+     IMPORTING
+       EV_FLTIME               = gv_fltime
+       EV_FLTIME_CHANGED       = gv_fltime_changed
+      CHANGING
+        cs_spfli                = gs_spfli.
+    
+    IF gv_fltime_changed IS NOT INITIAL.
+      SKIP. WRITE: gv_fltime. SKIP.
+      WRITE: gs_spfli-fltime,    gs_spfli-deptime.
+    ENDIF.
+  ENDIF.
+
+
