@@ -1,0 +1,190 @@
+"  Constant Command und seine Verwendung
+
+CONSTANTS: gc_city   TYPE c LENGTH 10 VALUE 'Trabzon',
+           gc_user   TYPE string VALUE 'USER_030',
+           gc_number TYPE i VALUE 123,
+           gc_numnum TYPE n LENGTH 5 VALUE 123,
+           gc_date   TYPE d VALUE '20231128',
+           gc_time   TYPE t VALUE '200000',
+           gc_pnum   TYPE p VALUE '120.6545'.
+
+WRITE: gc_city, / gc_user, / gc_number, / gc_numnum,
+       / gc_date, / gc_time, / gc_pnum, /.
+
+WRITE: '*****************************************************'.
+SKIP. ULINE.
+
+" Concatenate Command und seine Verwendung
+
+DATA: gv_mahalle TYPE string VALUE 'Kaleönü Mah.',
+      gv_cadde   TYPE string VALUE 'Karşular Cad.',
+      gv_no      TYPE string VALUE '17/5',
+      gv_pk      TYPE string VALUE '59368',
+      gv_ilce    TYPE string VALUE 'Tonya',
+      gv_il      TYPE string VALUE 'Trabzon',
+      gv_adres   TYPE string.
+
+CONCATENATE: gv_mahalle gv_cadde gv_no gv_pk gv_ilce
+             gv_il INTO gv_adres RESPECTING BLANKS.
+
+WRITE: gv_adres, /.
+
+CONCATENATE: gv_mahalle gv_cadde gv_no gv_pk gv_ilce
+             gv_il INTO gv_adres SEPARATED BY space.
+
+WRITE: gv_adres, /.
+
+WRITE: '*****************************************************'.
+SKIP. ULINE.
+
+" Condense Command und seine Verwendung
+
+DATA: gv_text_01 TYPE c LENGTH 50 VALUE '    EuroTech   Study    '.
+WRITE: gv_text_01, /.
+
+CONDENSE gv_text_01.
+WRITE: gv_text_01, /.
+
+CONDENSE gv_text_01 NO-GAPS.
+WRITE: gv_text_01, /.
+
+WRITE: '*****************************************************'.
+SKIP. ULINE.
+
+"  Replace Command und seine Verwendung
+
+DATA: gv_text_02 TYPE c LENGTH 50 VALUE '11112222333344445555'.
+WRITE: gv_text_02, /.
+
+REPLACE ALL OCCURRENCES OF '3' IN gv_text_02 WITH 'W'.
+WRITE: gv_text_02, /.
+
+REPLACE FIRST OCCURRENCE OF 'WW' IN gv_text_02 WITH 'ZZ'.
+WRITE: gv_text_02, /.
+
+REPLACE ALL OCCURRENCES OF 'w' IN gv_text_02 WITH 'R' RESPECTING CASE.
+WRITE: gv_text_02, /.
+
+REPLACE ALL OCCURRENCES OF 'w' IN gv_text_02 WITH 'R' IGNORING CASE.
+WRITE: gv_text_02, /.
+
+WRITE: '*****************************************************'.
+SKIP. ULINE.
+
+"Search Command und seine Verwendung
+
+DATA: gv_text TYPE c LENGTH 50 VALUE 'Istanbul Izmir Antalya'.
+
+SEARCH gv_text FOR 'ant'.
+WRITE: sy-subrc, 'Sonuc Olumlu.', /.
+
+SEARCH gv_text FOR 'itl'.
+WRITE: sy-subrc, 'Sonuc Olumsuz.', /.
+
+" ABBREVIATED: Es prüft, ob das gesuchte Wort in jedem Teil des Textes vorkommt. 
+" Es liefert jedoch auch positive Ergebnisse, 
+" wenn andere Zeichen zwischen den gesuchten Buchstaben stehen.
+SEARCH gv_text FOR 'itl' ABBREVIATED.
+WRITE: sy-subrc, 'Sonuc Olumlu.', /.
+
+" STARTING AT: Damit können wir angeben, 
+" nach welchem ​​Zeichen des gesuchten Worts im Text die Suche beginnen soll.
+SEARCH gv_text FOR 'izm' STARTING AT 9.
+WRITE: sy-subrc, 'Sonuc Olumlu.', /.
+
+" ENDING AT: Damit können wir feststellen, 
+" bis zu welchem ​​Zeichen das gesuchte Wort im Text gesucht wurde.
+SEARCH gv_text FOR 'mir' ENDING AT 3.
+WRITE: sy-subrc, 'Sonuc Olumsuz.', /.
+
+*AND MARK: Text içerisinde aranan kelimenin bulunması
+*halinde, bulunan kişim büyük harfe çevrilir.
+SEARCH gv_text FOR 'ist' AND MARK.
+WRITE: sy-subrc, 'Sonuc Olumlu.', /.
+
+WRITE: '*****************************************************'.
+SKIP. ULINE.
+
+" Shift Command und seine Verwendung
+DATA: gv_kel_01 TYPE c LENGTH 10 VALUE '0123456789',
+      gv_kel_02 TYPE c LENGTH 10 VALUE '0123456789',
+      gv_kel_03 TYPE c LENGTH 12 VALUE '123456000000',
+      gv_kel_04 TYPE c LENGTH 12 VALUE '000000123456'.
+
+SHIFT gv_kel_01 RIGHT UP TO '34'.
+WRITE: gv_kel_01, /.
+
+SHIFT gv_kel_02 LEFT UP TO '45'.
+WRITE: gv_kel_02, /.
+
+SHIFT gv_kel_03 RIGHT DELETING TRAILING '0'.
+WRITE: gv_kel_03, /.
+
+SHIFT gv_kel_04 LEFT DELETING LEADING '0'.
+WRITE: gv_kel_04, /.
+
+WRITE: '*****************************************************'.
+SKIP. ULINE.
+
+" STRLEN Command und seine Verwendung
+DATA: gv_cumle_01 TYPE string VALUE 'Bugün alışveriş yapmam gerekiyor.',
+      gv_int      TYPE i.
+gv_int = strlen( gv_cumle_01 ).
+
+WRITE: gv_cumle_01, / gv_int, /.
+
+WRITE: '*****************************************************'.
+SKIP. ULINE.
+
+" Split Command und seine Verwendung
+
+DATA: gv_tekst TYPE string VALUE 'Bugün hava ne kadar güneşli',
+      gv_word_01 TYPE string,
+      gv_word_02 TYPE string,
+      gv_word_03 TYPE string,
+      gv_word_04 TYPE string,
+      gv_word_05 TYPE string.
+
+SPLIT gv_tekst AT space INTO gv_word_01 gv_word_02 gv_word_03
+                             gv_word_04 gv_word_05.
+WRITE: gv_word_01, / gv_word_02, / gv_word_03,
+      / gv_word_04, gv_word_05, /.
+
+DATA: gv_name TYPE string VALUE 'Barıs Manco',
+      gv_part_01 TYPE string,
+      gv_part_02 TYPE string,
+      gv_part_03 TYPE string.
+SPLIT gv_name AT 'a' INTO gv_part_01 gv_part_02 gv_part_03.
+WRITE: gv_part_01, / gv_part_02, / gv_part_03.
+
+WRITE: '*****************************************************'.
+SKIP. ULINE.
+
+DATA: gv_metin_01 TYPE string,
+      gv_metin_02 TYPE string,
+      gv_metin_03 TYPE string,
+      gv_metin_04 TYPE string.
+
+gv_metin_01 = 'sap yazılım dili abap öğreniyorum'.
+gv_metin_02 = 'SAP YAZıLıM DILI ABAP ÖĞRENIYORUM'.
+gv_metin_03 = 'SAP YAZıLıM diLI abap öğreniyorum'.
+gv_metin_04 = 'sap yazılım dili ABAP ÖĞRENIYORUM'.
+
+TRANSLATE gv_metin_01 TO UPPER CASE.
+WRITE: gv_metin_01.
+SKIP.
+
+TRANSLATE gv_metin_02 TO LOWER CASE.
+WRITE: gv_metin_02.
+SKIP.
+
+TRANSLATE gv_metin_03 TO UPPER CASE.
+WRITE: gv_metin_03.
+SKIP.
+
+TRANSLATE gv_metin_04 TO LOWER CASE.
+WRITE: gv_metin_04.
+SKIP.
+
+WRITE: '*****************************************************'.
+SKIP. ULINE.
