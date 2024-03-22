@@ -1,0 +1,137 @@
+" Vor Abap 7.40
+DATA: gv_text_1 TYPE c LENGTH 15,
+      gv_text_2 TYPE string,
+      gv_number TYPE i,
+      gv_date   TYPE datum,
+      gv_time   TYPE uzeit.
+
+gv_text_1 = 'Deneme text 001'.
+gv_text_2 = 'Deneme text 002'.
+gv_number = 20.
+gv_date   = sy-datum.
+gv_time   = sy-uzeit.
+
+" Abap 7.40 sonrası
+DATA(gv_text_1_new) = 'Deneme text 001'.
+DATA(gv_text_2_new) = 'Deneme text 002'.
+DATA(gv_number_new) = 20.
+DATA(gv_date_new)   = sy-datum.
+DATA(gv_time_new)   = sy-uzeit.
+
+****************************************************************
+DATA: gt_scarr TYPE TABLE OF scarr.
+
+START-OF-SELECTION.
+
+SELECT * FROM scarr INTO TABLE gt_scarr.
+
+  LOOP AT gt_scarr INTO DATA(gs_scarr).
+    WRITE: gs_scarr-carrid, gs_scarr-carrname,
+           gs_scarr-currcode, gs_scarr-url.
+  ENDLOOP.
+*****************************************************************
+PARAMETERS: p_scarr RADIOBUTTON GROUP abc,
+            p_spfli RADIOBUTTON GROUP abc,
+            p_sflgt RADIOBUTTON GROUP abc.
+
+START-OF-SELECTION.
+
+IF p_scarr = abap_true.
+  SELECT * FROM scarr INTO TABLE @DATA(gt_scarr).
+    LOOP AT gt_scarr INTO DATA(gs_scarr).
+       WRITE: gs_scarr-carrid, gs_scarr-carrname,
+              gs_scarr-currcode, gs_scarr-url.
+    ENDLOOP.
+ELSEIF p_spfli = abap_true.
+  SELECT * FROM spfli INTO TABLE @DATA(gt_spfli).
+    LOOP AT gt_spfli INTO DATA(gs_spfli).
+      WRITE: gs_spfli-carrid   ,
+             gs_spfli-connid   ,
+             gs_spfli-countryfr,
+             gs_spfli-cityfrom ,
+             gs_spfli-airpfrom ,
+             gs_spfli-countryto,
+             gs_spfli-cityto   ,
+             gs_spfli-airpto   ,
+             gs_spfli-fltime   ,
+             gs_spfli-deptime  ,
+             gs_spfli-arrtime  ,
+             gs_spfli-distance ,
+             gs_spfli-distid   ,
+             gs_spfli-fltype   ,
+             gs_spfli-period   .
+    ENDLOOP.
+ELSEIF p_sflgt = abap_true.
+  SELECT * FROM sflight INTO TABLE @DATA(gt_sflight).
+    LOOP AT gt_sflight INTO DATA(gs_sflight).
+      WRITE:  gs_sflight-carrid    ,
+              gs_sflight-connid    ,
+              gs_sflight-fldate    ,
+              gs_sflight-price     ,
+              gs_sflight-currency  ,
+              gs_sflight-planetype ,
+              gs_sflight-seatsmax  ,
+              gs_sflight-seatsocc  ,
+              gs_sflight-paymentsum,
+              gs_sflight-seatsmax_b,
+              gs_sflight-seatsocc_b,
+              gs_sflight-seatsmax_f,
+              gs_sflight-seatsocc_f.
+    ENDLOOP.
+ENDIF.
+*****************************************************************************
+PARAMETERS: p_scarr RADIOBUTTON GROUP abc,
+            p_spfli RADIOBUTTON GROUP abc,
+            p_sflgt RADIOBUTTON GROUP abc,
+            p_index TYPE i.
+
+START-OF-SELECTION.
+
+IF p_scarr = abap_true.
+  SELECT * FROM scarr INTO TABLE @DATA(gt_scarr).
+    READ TABLE gt_scarr INTO DATA(gs_scarr) INDEX p_index.
+    IF sy-subrc IS INITIAL.
+      WRITE: gs_scarr-carrid, gs_scarr-carrname,
+             gs_scarr-currcode, gs_scarr-url.
+    ENDIF.
+ELSEIF p_spfli = abap_true.
+  SELECT * FROM spfli INTO TABLE @DATA(gt_spfli).
+    READ TABLE gt_spfli INTO DATA(gs_spfli) INDEX p_index.
+    IF sy-subrc IS INITIAL.
+      WRITE: gs_spfli-carrid   ,
+             gs_spfli-connid   ,
+             gs_spfli-countryfr,
+             gs_spfli-cityfrom ,
+             gs_spfli-airpfrom ,
+             gs_spfli-countryto,
+             gs_spfli-cityto   ,
+             gs_spfli-airpto   ,
+             gs_spfli-fltime   ,
+             gs_spfli-deptime  ,
+             gs_spfli-arrtime  ,
+             gs_spfli-distance ,
+             gs_spfli-distid   ,
+             gs_spfli-fltype   ,
+             gs_spfli-period   .
+    ENDIF.
+ELSEIF p_sflgt = abap_true.
+  SELECT * FROM sflight INTO TABLE @DATA(gt_sflight).
+    READ TABLE gt_sflight INTO DATA(gs_sflight) INDEX p_index.
+    IF sy-subrc IS INITIAL.
+      WRITE:  gs_sflight-carrid    ,
+              gs_sflight-connid    ,
+              gs_sflight-fldate    ,
+              gs_sflight-price     ,
+              gs_sflight-currency  ,
+              gs_sflight-planetype ,
+              gs_sflight-seatsmax  ,
+              gs_sflight-seatsocc  ,
+              gs_sflight-paymentsum,
+              gs_sflight-seatsmax_b,
+              gs_sflight-seatsocc_b,
+              gs_sflight-seatsmax_f,
+              gs_sflight-seatsocc_f.
+    ENDIF.
+ENDIF.
+********************************************************************************************
+
