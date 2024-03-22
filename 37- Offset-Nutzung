@@ -1,0 +1,103 @@
+SELECTION-SCREEN BEGIN OF BLOCK a1 WITH FRAME
+  TITLE TEXT-001 NO INTERVALS.
+  PARAMETERS: p_ad    TYPE zmk_de_info_ad,
+              p_sad   TYPE zmk_de_info_sad,
+              p_tarih TYPE datum.
+SELECTION-SCREEN END OF BLOCK a1.
+
+DATA: gt_date_info TYPE TABLE OF zmk_date_info,
+      gs_date_info TYPE zmk_date_info,
+      gv_yil       TYPE c LENGTH 4,
+      gv_ay        TYPE c LENGTH 2,
+      gv_gun       TYPE c LENGTH 2,
+      gv_no        TYPE c LENGTH 1.
+
+START-OF-SELECTION.
+
+SELECT * FROM zmk_date_info INTO TABLE gt_date_info.
+
+*  gs_date_info-id       = lines( gt_date_info ) + 1.
+CALL FUNCTION 'NUMBER_GET_NEXT'
+  EXPORTING
+    nr_range_nr                   = '01'
+    object                        = 'ZMK_NR_03'
+ IMPORTING
+   NUMBER                        = gs_date_info-id
+ EXCEPTIONS
+   INTERVAL_NOT_FOUND            = 1
+   NUMBER_RANGE_NOT_INTERN       = 2
+   OBJECT_NOT_FOUND              = 3
+   QUANTITY_IS_0                 = 4
+   QUANTITY_IS_NOT_1             = 5
+   INTERVAL_OVERFLOW             = 6
+   BUFFER_OVERFLOW               = 7
+   OTHERS                        = 8 .
+
+IF sy-subrc IS NOT INITIAL.
+  MESSAGE 'Im Nummernkreis ist ein Fehler aufgetreten.'
+    TYPE 'S' DISPLAY LIKE 'E'.
+  LEAVE PROGRAM.
+ENDIF.
+
+  gs_date_info-ad       = p_ad.
+  gs_date_info-soyad    = p_sad.
+  gs_date_info-d_tarihi = p_tarih.
+
+  gv_yil = p_tarih+0(4).
+         "Alternatif --> gv_yil = p_tarih(4).
+  gv_ay  = p_tarih+4(2).
+  gv_gun = p_tarih+6(2).
+
+  gs_date_info-d_yil = gv_yil.
+
+CASE gv_ay.
+  WHEN '01'.
+    gs_date_info-d_ay = 'Januar'.
+  WHEN '02'.
+    gs_date_info-d_ay = 'Februar'.
+  WHEN '03'.
+    gs_date_info-d_ay = ' März'.
+  WHEN '04'.
+    gs_date_info-d_ay = 'April'.
+  WHEN '05'.
+    gs_date_info-d_ay = 'Mai'.
+  WHEN '06'.
+    gs_date_info-d_ay = 'Juni'.
+  WHEN '07'.
+    gs_date_info-d_ay = 'Juli'.
+  WHEN '08'.
+    gs_date_info-d_ay = 'August'.
+  WHEN '09'.
+    gs_date_info-d_ay = 'September'.
+  WHEN '10'.
+    gs_date_info-d_ay = 'Oktober '.
+  WHEN '11'.
+    gs_date_info-d_ay = 'November'.
+  WHEN '12'.
+    gs_date_info-d_ay = 'Dezember'.
+ENDCASE.
+
+CALL FUNCTION 'DATE_COMPUTE_DAY'
+  EXPORTING
+    date          = p_tarih
+ IMPORTING
+   DAY           = gv_no .
+
+CASE gv_no.
+  WHEN '1'.
+    gs_date_info-d_gun = 'Monta'.
+  WHEN '2'.
+    gs_date_info-d_gun = 'Dienstag'.
+  WHEN '3'.
+    gs_date_info-d_gun = 'Mittwoch'.
+  WHEN '4'.
+    gs_date_info-d_gun = 'Donnerstag'.
+  WHEN '5'.
+    gs_date_info-d_gun = 'Freitag'.
+  WHEN '6'.
+    gs_date_info-d_gun = 'Samstag'.
+  WHEN '7'.
+    gs_date_info-d_gun = 'Sonntag'.
+ENDCASE.
+
+INSERT zmk_date_info FROM gs_date_info.
