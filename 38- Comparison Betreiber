@@ -1,0 +1,93 @@
+*DATA: gv_01 TYPE c LENGTH 3 VALUE '100',
+*      gv_02 TYPE c LENGTH 3 VALUE '10A',
+*      gv_03 TYPE c LENGTH 3 VALUE '200',
+*      gv_04 TYPE c LENGTH 3 VALUE '$4%'.
+
+*IF gv_01 CO '0123456789'.
+*  WRITE: 'Mit der Variablen gv_01 können mathematische Operationen ausgeführt werden.'.
+*ELSE.
+*  WRITE: 'Mit der Variablen gv_01 können keine mathematischen Operationen ausgeführt werden.'.
+*ENDIF.
+*
+*IF gv_02 CO '0123456789'.
+*  WRITE: 'Mit der Variablen gv_01 können mathematische Operationen ausgeführt werden.'.
+*ELSE.
+*  WRITE: 'Mit der Variablen gv_01 können keine mathematischen Operationen ausgeführt werden.'.
+*ENDIF.
+*
+*IF gv_03 CO '0123456789'.
+*  WRITE: 'Mit der Variablen gv_01 können mathematische Operationen ausgeführt werden.'.
+*ELSE.
+*  WRITE: 'Mit der Variablen gv_01 können keine mathematischen Operationen ausgeführt werden.'.
+*ENDIF.
+*
+*IF gv_04 CO '0123456789'.
+*  WRITE: 'Mit der Variablen gv_01 können mathematische Operationen ausgeführt werden.'.
+*ELSE.
+*  WRITE: 'Mit der Variablen gv_01 können keine mathematischen Operationen ausgeführt werden.'.
+*ENDIF.
+
+*IF gv_01 CN '0123456789'.
+*  WRITE: 'Mit der Variablen gv_01 können mathematische Operationen ausgeführt werden.'.
+*ELSE.
+*  WRITE: 'Mit der Variablen gv_01 können keine mathematischen Operationen ausgeführt werden.'.
+*ENDIF.
+*
+*IF gv_02 CN '0123456789'.
+*  WRITE: 'Mit der Variablen gv_01 können mathematische Operationen ausgeführt werden.'.
+*ELSE.
+*  WRITE: 'Mit der Variablen gv_01 können keine mathematischen Operationen ausgeführt werden.'.
+*ENDIF.
+*
+*IF gv_03 CN '0123456789'.
+*  WRITE: 'Mit der Variablen gv_01 können mathematische Operationen ausgeführt werden.'.
+*ELSE.
+*  WRITE: 'Mit der Variablen gv_01 können keine mathematischen Operationen ausgeführt werden.'.
+*ENDIF.
+*
+*IF gv_04 CN '0123456789'.
+*  WRITE: 'Mit der Variablen gv_01 können mathematische Operationen ausgeführt werden.'.
+*ELSE.
+*  WRITE: 'Mit der Variablen gv_01 können keine mathematischen Operationen ausgeführt werden.'.
+*ENDIF.
+
+*DATA: gv_text TYPE string VALUE 'Tükenmez Kalem'.
+*IF gv_text CA 'çığöşü'.
+*  WRITE: 'Değişken türkçe karakter içerir.'.
+*ENDIF.
+
+*DATA: gv_text TYPE string VALUE 'Dolma Kalem'.
+*IF gv_text NA 'çığöşü'.
+*  WRITE: 'Değişken türkçe karakter içermez.'.
+*ENDIF.
+
+*DATA: gv_text TYPE string VALUE 'Abap programlama dili ögreniyorum.'.
+*IF gv_text CS 'PRO'.
+*  WRITE: '"PRO" texti gv_text degiskeni icerisinde yer almaktadır.'.
+*ENDIF.
+
+*DATA: gv_text TYPE string VALUE 'Abap programlama dili ögreniyorum.'.
+*IF gv_text NS 'SAP'.
+*  WRITE: '"PRO" texti gv_text degiskeni icerisinde yer almamaktadır.'.
+*ENDIF.
+
+*DATA: gv_text TYPE string VALUE 'Comparison Operatörleri.'.
+*IF gv_text CP 'COM*'.
+*  WRITE: 'gv_text degiskeni "COM" texti ile baslamaktadır.'.
+*ENDIF.
+
+*DATA: gv_text TYPE string VALUE 'Comparison Operatörleri.'.
+*IF gv_text CP '*leri.'.
+*  WRITE: 'gv_text degiskeni "leri." texti ile bitmektedir.'.
+*ENDIF.
+
+*DATA: gv_text TYPE string VALUE 'euroTech Study'.
+*IF gv_text NP 'TR*.'.
+*  WRITE: 'gv_text degiskeni "TR" texti ile baslamamaktadır.'.
+*ENDIF.
+
+
+DATA: gv_text TYPE string VALUE 'euroTech Study'.
+IF gv_text NP '*DE'.
+  WRITE: 'gv_text degiskeni "DE" texti ile bitmemektedir.'.
+ENDIF.
