@@ -1,0 +1,167 @@
+TABLES: sscrfields.
+
+SELECTION-SCREEN BEGIN OF BLOCK a1 WITH FRAME TITLE TEXT-001 NO INTERVALS.
+  PARAMETERS: p_id     TYPE zmk_de_id      ,
+              p_ad     TYPE zmk_de_info_ad ,
+              p_soyad  TYPE zmk_de_info_sad,
+              p_adres  TYPE zmk_de_adres   ,
+              p_gsm    TYPE zmk_de_gsm     ,
+              p_e_mail TYPE zmk_de_e_mail  ,
+              p_iznhkk TYPE zmk_de_izin_hak.
+  SELECTION-SCREEN PUSHBUTTON 46(54) bt1 USER-COMMAND OKU.
+SELECTION-SCREEN END OF BLOCK a1.
+
+SELECTION-SCREEN BEGIN OF BLOCK a2 WITH FRAME TITLE TEXT-002 NO INTERVALS.
+  PARAMETERS: p_sil  RADIOBUTTON GROUP abc,
+              p_gun  RADIOBUTTON GROUP abc,
+              p_ekle RADIOBUTTON GROUP abc.
+SELECTION-SCREEN END OF BLOCK a2.
+
+DATA: gs_eski TYPE zmk_tablo_1,
+      gs_yeni TYPE zmk_tablo_1,
+      gt_tablo_eski TYPE TABLE OF zzmk_tablo_1,
+      gt_tablo_yeni TYPE TABLE OF zzmk_tablo_1,
+      gt_cdpos TYPE cdpos_tab,
+      gv_process.
+
+INITIALIZATION.
+
+CALL FUNCTION 'ICON_CREATE'
+  EXPORTING
+    name                 = icon_toggle_display
+    TEXT                 = 'Oku'
+ IMPORTING
+   RESULT                = bt1
+ EXCEPTIONS
+   ICON_NOT_FOUND        = 1
+   OUTPUTFIELD_TOO_SHORT = 2
+   OTHERS                = 3 .
+
+AT SELECTION-SCREEN.
+
+  CASE sscrfields-ucomm.
+    WHEN 'OKU'.
+      IF p_id IS NOT INITIAL.
+
+        SELECT SINGLE * FROM zmk_tablo_1 INTO @DATA(gs_str) WHERE id = @p_id.
+        IF gs_str IS NOT INITIAL.
+          p_ad     = gs_str-ad.
+          p_soyad  = gs_str-soyad.
+          p_adres  = gs_str-adres.
+          p_gsm    = gs_str-gsm.
+          p_e_mail = gs_str-e_mail.
+          p_iznhkk = gs_str-izin_hakki.
+        ELSE.
+          CLEAR: p_ad, p_soyad, p_adres, p_gsm, p_e_mail, p_iznhkk.
+          MESSAGE 'ID nicht gefunden.' TYPE 'S' DISPLAY LIKE 'E'.
+        ENDIF.
+      ENDIF.
+  ENDCASE.
+
+START-OF-SELECTION.
+  IF p_id IS INITIAL.
+    MESSAGE 'Leere ID.' TYPE 'S' DISPLAY LIKE 'E'.
+    RETURN.
+  ENDIF.
+
+  IF p_sil = abap_true.
+
+    SELECT SINGLE * FROM zmk_tablo_1 INTO gs_eski WHERE id = p_id.
+    IF gs_eski IS NOT INITIAL.
+      DELETE FROM zmk_tablo_1 WHERE id = p_id.
+
+      IF sy-subrc IS NOT INITIAL.
+        MESSAGE 'Löschung nicht erfolgreich.' TYPE 'S' DISPLAY LIKE 'E'.
+        RETURN.
+      ENDIF.
+
+      gv_process = 'D'.
+    ELSE.
+      MESSAGE 'Löschung nicht erfolgreich. ID nicht gefunden.' TYPE 'S' DISPLAY LIKE 'E'.
+    ENDIF.
+
+  ELSEIF p_gun = abap_true.
+    SELECT SINGLE * FROM zmk_tablo_1 INTO gs_eski WHERE id = p_id.
+      IF gs_eski IS NOT INITIAL.
+
+        UPDATE zmk_tablo_1 SET ad         = p_ad
+                               soyad      = p_soyad
+                               adres      = p_adres
+                               gsm        = p_gsm
+                               e_mail     = p_e_mail
+                               izin_hakki = p_iznhkk
+                                 WHERE id = p_id.
+
+        IF sy-subrc IS NOT INITIAL.
+          MESSAGE 'Aktualisierung nicht erfolgreich.' TYPE 'S' DISPLAY LIKE 'E'.
+          RETURN.
+        ENDIF.
+
+        gs_yeni-id         = p_id     .
+        gs_yeni-ad         = p_ad     .
+        gs_yeni-soyad      = p_soyad  .
+        gs_yeni-adres      = p_adres  .
+        gs_yeni-gsm        = p_gsm    .
+        gs_yeni-e_mail     = p_e_mail .
+        gs_yeni-izin_hakki = p_iznhkk .
+        gv_process = 'U'.
+
+      ELSE.
+        MESSAGE 'Aktualisierung nicht erfolgreich. ID nicht gefunden.' TYPE 'S' DISPLAY LIKE 'E'.
+        RETURN.
+      ENDIF.
+  ELSE.
+    gs_yeni-id         = p_id     .
+    gs_yeni-ad         = p_ad     .
+    gs_yeni-soyad      = p_soyad  .
+    gs_yeni-adres      = p_adres  .
+    gs_yeni-gsm        = p_gsm    .
+    gs_yeni-e_mail     = p_e_mail .
+    gs_yeni-izin_hakki = p_iznhkk .
+
+    INSERT zmk_tablo_1 FROM gs_yeni.
+
+    IF sy-subrc IS NOT INITIAL.
+      MESSAGE 'Zeileneinfügung nicht erfolgreich.' TYPE 'S' DISPLAY LIKE 'E'.
+      RETURN.
+    ENDIF.
+
+    gv_process = 'I'.
+  ENDIF.
+
+  IF gs_eski IS NOT INITIAL.
+    gs_eski-mandt = sy-mandt.
+    APPEND gs_eski TO gt_tablo_eski.
+  ENDIF.
+
+  IF gs_yeni IS NOT INITIAL.
+    gs_yeni-mandt = sy-mandt.
+    APPEND gs_yeni TO gt_tablo_yeni.
+  ENDIF.
+
+  CALL FUNCTION 'ZMK_CDO_03_WRITE_DOCUMENT'
+    EXPORTING
+      objectid                      = 'ZMK_CDO_03'
+      tcode                         = sy-tcode
+      utime                         = sy-uzeit
+      udate                         = sy-datum
+      username                      = sy-uname
+     UPD_ZMK_TABLO_1               = gv_process
+   TABLES
+     XZMK_TABLO_1                  = gt_tablo_yeni
+     YZMK_TABLO_1                  = gt_tablo_eski .
+
+  CALL FUNCTION 'CHANGEDOCUMENT_READ_ALL'
+   EXPORTING
+     I_OBJECTCLASS                     = 'ZMK_CDO_03'
+     I_TABLENAME                       = 'ZMK_TABLO_1'
+   IMPORTING
+     ET_CDPOS                          = gt_cdpos
+   EXCEPTIONS
+     MISSING_INPUT_OBJECTCLASS         = 1
+     MISSING_INPUT_HEADER              = 2
+     NO_POSITION_FOUND                 = 3
+     WRONG_ACCESS_TO_ARCHIVE           = 4
+     TIME_ZONE_CONVERSION_ERROR        = 5
+     READ_TOO_MANY_ENTRIES             = 6
+     OTHERS                            = 7 .
