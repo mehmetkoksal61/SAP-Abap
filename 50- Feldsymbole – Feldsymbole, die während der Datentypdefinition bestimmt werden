@@ -1,0 +1,109 @@
+DATA: gv_number TYPE i VALUE 10.
+
+FIELD-SYMBOLS: <gv_fs_number> TYPE i.
+
+START-OF-SELECTION.
+
+ASSIGN gv_number TO <gv_fs_number>.
+
+WRITE: 'Normale Variable :', gv_number.
+
+WRITE: /'Field Sembol :', <gv_fs_number>.
+
+SKIP.
+
+<gv_fs_number> = 20.
+
+WRITE: 'Normale Variable :', gv_number.
+
+WRITE: /'Field Sembol :', <gv_fs_number>.
+
+SKIP.
+
+gv_number = 30.
+
+WRITE: 'Normale Variable :', gv_number.
+SKIP.
+WRITE: 'Field Sembol    :', <gv_fs_number>.
+
+
+*************************************************
+
+DATA: gt_scarr TYPE TABLE OF scarr.
+FIELD-SYMBOLS: <gs_scarr> TYPE scarr.
+
+START-OF-SELECTION.
+
+SELECT * FROM scarr INTO TABLE gt_scarr.
+
+  LOOP AT gt_scarr ASSIGNING <gs_scarr>.
+    IF <gs_scarr>-currcode = 'EUR'.
+      <gs_scarr>-currcode = 'USD'.
+    ELSEIF <gs_scarr>-currcode = 'USD'.
+      <gs_scarr>-currcode = 'EUR'.
+    ENDIF.
+  ENDLOOP.
+
+  SORT gt_scarr BY carrid.
+
+****
+
+APPEND INITIAL LINE TO komutu
+
+TYPES: BEGIN OF gty_table,
+         carrid     TYPE s_carr_id,
+         connid     TYPE s_conn_id,
+         fldate     TYPE s_date,
+         bos_koltuk TYPE int4,
+       END OF gty_table.
+
+DATA: gt_table   TYPE TABLE OF gty_table,
+      gt_sflight TYPE TABLE OF sflight,
+      gs_sflight TYPE sflight.
+
+FIELD-SYMBOLS: <gs_str> TYPE gty_table.
+
+START-OF-SELECTION.
+
+SELECT * FROM sflight INTO TABLE gt_sflight.
+
+
+  LOOP AT gt_sflight INTO gs_sflight.
+    APPEND INITIAL LINE TO gt_table ASSIGNING <gs_str>.
+    <gs_str>-carrid     = gs_sflight-carrid.
+    <gs_str>-connid     = gs_sflight-connid.
+    <gs_str>-fldate     = gs_sflight-fldate.
+    <gs_str>-bos_koltuk = gs_sflight-seatsmax - gs_sflight-seatsocc.
+  ENDLOOP.
+
+*****************************************************************
+
+TYPES: BEGIN OF gty_table,
+         carrid     TYPE s_carr_id,
+         connid     TYPE s_conn_id,
+         fldate     TYPE s_date,
+         bos_koltuk TYPE int4,
+       END OF gty_table.
+
+TYPES: gtt_table TYPE TABLE OF gty_table.
+
+DATA: gt_table   TYPE TABLE OF gty_table,
+      gt_sflight TYPE TABLE OF sflight,
+      gs_sflight TYPE sflight.
+
+FIELD-SYMBOLS: <gt_table> TYPE gtt_table,
+               <gs_str> TYPE gty_table.
+
+START-OF-SELECTION.
+
+SELECT * FROM sflight INTO TABLE gt_sflight.
+ASSIGN gt_table TO <gt_table>.
+
+  LOOP AT gt_sflight INTO gs_sflight.
+    APPEND INITIAL LINE TO <gt_table> ASSIGNING <gs_str>.
+    <gs_str>-carrid     = gs_sflight-carrid.
+    <gs_str>-connid     = gs_sflight-connid.
+    <gs_str>-fldate     = gs_sflight-fldate.
+    <gs_str>-bos_koltuk = gs_sflight-seatsmax - gs_sflight-seatsocc.
+  ENDLOOP.
+
