@@ -1,0 +1,22 @@
+TYPES: BEGIN OF gty_table,
+         id             TYPE zmk_de_id,
+         ad             TYPE zmk_de_info_ad,
+         soyad          TYPE zmk_de_info_sad,
+         izin_baslangic TYPE datum,
+         izin_bitis     TYPE datum,
+       END OF gty_table.
+
+DATA: gt_tablo_son TYPE TABLE OF gty_table.
+
+START-OF-SELECTION.
+
+  SELECT zmk_tablo_1~id, zmk_tablo_1~ad,
+         zmk_tablo_1~soyad,
+         zmk_tablo_2~izin_baslangic,
+         zmk_tablo_2~izin_bitis
+    INTO TABLE @gt_tablo_son
+    FROM zmk_tablo_1
+    LEFT OUTER JOIN zmk_tablo_2
+    ON zmk_tablo_1~id = zmk_tablo_2~id.
+
+  SORT gt_tablo_son BY id.
