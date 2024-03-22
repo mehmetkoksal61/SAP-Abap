@@ -115,7 +115,7 @@ MODULE user_command_0100 INPUT.
         ENDIF.
 
       ELSE.
-        MESSAGE 'En az bir kolon seçiniz.' TYPE 'I'.
+        MESSAGE 'Wählen Sie mindestens eine Spalte aus.' TYPE 'I'.
       ENDIF.
   ENDCASE.
 ENDMODULE.
