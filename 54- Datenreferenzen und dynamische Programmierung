@@ -1,0 +1,142 @@
+PARAMETERS: p_table TYPE tabname.
+
+DATA: gr_data TYPE REF TO dat.
+
+START-OF-SELECTION.
+
+DATA(go_new) = NEW zcmdynamic_table_selection( ).
+
+go_new->get_data(
+  EXPORTING
+    iv_tabname = p_table
+  IMPORTING
+    et_data    = gr_data ). 
+
+***************************************************************************
+
+  METHOD get_data.
+    FIELD-SYMBOLS: <fs_table> TYPE ANY TABLE.
+
+    CREATE DATA et_data TYPE TABLE OF (iv_tabname).
+
+    ASSIGN et_data->* TO <fs_table>.
+
+    SELECT * FROM (iv_tabname) INTO TABLE <fs_table>.
+
+  ENDMETHOD.
+
+  **************************************************************************
+  **************************************************************************
+
+  TYPES: BEGIN OF gty_static,
+         tcno  TYPE c LENGTH 11,
+         ad    TYPE c LENGTH 25,
+         soyad TYPE c LENGTH 25,
+       END OF gty_static.
+
+TYPES: BEGIN OF gty_sirket,
+         sirket TYPE c LENGTH 25,
+       END OF gty_sirket.
+
+TYPES: BEGIN OF gty_banka,
+         banka TYPE c LENGTH 25,
+       END OF gty_banka.
+
+DATA: gt_statik   TYPE TABLE OF gty_static,
+      gt_sirket   TYPE TABLE OF gty_sirket,
+      gt_banka    TYPE TABLE OF gty_banka,
+      gt_fieldcat TYPE lvc_t_fcat,
+      gs_layout   TYPE lvc_s_layo.
+
+DATA: dt_1 TYPE REF TO data.
+
+FIELD-SYMBOLS: <fs_table> TYPE STANDARD TABLE.
+
+START-OF-SELECTION.
+
+" Tablonun bütün satırlanı okuyalım
+SELECT * FROM zcm_finans_genel INTO TABLE @DATA(gt_table).
+
+" Statik ve dinamik veriyi internal tablolar içinde hazırlayalım.
+  gt_statik = VALUE #( FOR gs_line IN gt_table ( tcno  = gs_line-tcno
+                                                 ad    = gs_line-ad
+                                                 soyad = gs_line-soyad ) ).
+  SORT gt_statik BY tcno.
+  DELETE ADJACENT DUPLICATES FROM gt_statik COMPARING tcno.
+
+  gt_sirket = VALUE #( FOR gs_line IN gt_table ( sirket = gs_line-sirket ) ).
+  SORT gt_sirket BY sirket.
+  DELETE ADJACENT DUPLICATES FROM gt_sirket COMPARING sirket.
+
+  gt_banka = VALUE #( FOR gs_line IN gt_table ( banka = gs_line-banka ) ).
+  SORT gt_banka BY banka.
+  DELETE ADJACENT DUPLICATES FROM gt_banka COMPARING banka.
+
+" Field Catalog tablosunu hazırlayalımç
+gt_fieldcat = VALUE #( ( fieldname = 'TCNO'  scrtext_s = 'TCNO'  outputlen = '12' )
+                       ( fieldname = 'AD'    scrtext_s = 'AD'    outputlen = '15' )
+                       ( fieldname = 'SOYAD' scrtext_s = 'SOYAD' outputlen = '15' ) ).
+
+gt_fieldcat = VALUE #( BASE gt_fieldcat FOR gs_srkt IN gt_sirket ( fieldname = gs_srkt-sirket
+                                                                   scrtext_s = gs_srkt-sirket
+                                                                   outputlen = '30' ) ).
+
+gt_fieldcat = VALUE #( BASE gt_fieldcat FOR gs_bnk IN gt_banka ( fieldname = gs_bnk-banka
+                                                                 scrtext_s = gs_bnk-banka
+                                                                 outputlen = '30' ) ).
+
+" Field Catalog tablosunu vererek ALV'sini göstereceğimiz tabloyu bos bir şekilde teslim alalım.
+cl_alv_table_create=>create_dynamic_table(
+  EXPORTING
+    it_fieldcatalog           = gt_fieldcat
+  IMPORTING
+    ep_table                  = dt_1
+  EXCEPTIONS
+    generate_subpool_dir_full = 1
+    others                    = 2 ).
+
+ASSIGN dt_1->* TO <fs_table>.
+
+" ALV'si gösterilecek tabloyu dolduralım.
+LOOP AT gt_statik INTO DATA(gs_statik).
+  APPEND INITIAL LINE TO <fs_table> ASSIGNING FIELD-SYMBOL(<fs_str>).
+
+  ASSIGN COMPONENT 'TCNO' OF STRUCTURE <fs_str> TO FIELD-SYMBOL(<fs_field>).
+  <fs_field> = gs_statik-tcno.
+
+  ASSIGN COMPONENT 'AD' OF STRUCTURE <fs_str> TO <fs_field>.
+  <fs_field> = gs_statik-ad.
+
+  ASSIGN COMPONENT 'SOYAD' OF STRUCTURE <fs_str> TO <fs_field>.
+  <fs_field> = gs_statik-soyad.
+
+  LOOP AT gt_table INTO DATA(gs_table) WHERE tcno = gs_statik-tcno.
+    ASSIGN COMPONENT gs_table-sirket OF STRUCTURE <fs_str> TO <fs_field>.
+    <fs_field> = abap_true.
+
+    ASSIGN COMPONENT gs_table-banka OF STRUCTURE <fs_str> TO <fs_field>.
+    <fs_field> = abap_true.
+  ENDLOOP.
+ENDLOOP.
+
+" Layout hazırlayalım.
+gs_layout-zebra       = abap_true.
+gs_layout-cwidth_opt  = abap_true.
+gs_layout-sel_mode    = 'A'.
+
+" ALV'yi ekranda gösterelim.
+
+CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY_LVC'
+ EXPORTING
+   I_CALLBACK_PROGRAM                = sy-repid
+   IS_LAYOUT_LVC                     = gs_layout
+   IT_FIELDCAT_LVC                   = gt_fieldcat
+  TABLES
+    t_outtab                          = <fs_table>
+ EXCEPTIONS
+   PROGRAM_ERROR                     = 1
+   OTHERS                            = 2 .
+
+IF sy-subrc IS NOT INITIAL.
+  LEAVE PROGRAM.
+ENDIF.
