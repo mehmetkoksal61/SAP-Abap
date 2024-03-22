@@ -1,0 +1,599 @@
+* Read Table Command
+
+DATA: gv_index TYPE i.
+
+START-OF-SELECTION.
+
+SELECT * FROM zmk_stravelag INTO TABLE @DATA(gt_table).
+
+  " Vor Abap 7.40 
+  READ TABLE gt_table INTO DATA(gs_str_1) INDEX 5.
+  IF sy-subrc IS INITIAL.
+    WRITE:  gs_str_1-id       ,
+            gs_str_1-agencynum,
+            gs_str_1-name     ,
+            gs_str_1-street   ,
+            gs_str_1-postbox  ,
+            gs_str_1-postcode ,
+            gs_str_1-city     ,
+            gs_str_1-country  ,
+            gs_str_1-region   ,
+            gs_str_1-telephone,
+            gs_str_1-url      ,
+            gs_str_1-langu    ,
+            gs_str_1-currency .
+  ENDIF.
+
+  SKIP.
+
+  " Nach Abap 7.40
+  TRY.
+    DATA(gs_str_2) = gt_table[ 5 ].
+  CATCH cx_sy_itab_line_not_found.
+    BREAK-POINT.
+  ENDTRY.
+
+  IF gs_str_2 IS NOT INITIAL.
+    WRITE:  gs_str_1-id       ,
+            gs_str_1-agencynum,
+            gs_str_1-name     ,
+            gs_str_1-street   ,
+            gs_str_1-postbox  ,
+            gs_str_1-postcode ,
+            gs_str_1-city     ,
+            gs_str_1-country  ,
+            gs_str_1-region   ,
+            gs_str_1-telephone,
+            gs_str_1-url      ,
+            gs_str_1-langu    ,
+            gs_str_1-currency .
+  ENDIF.
+
+  SKIP.
+
+  " Oder
+  DESCRIBE TABLE gt_table LINES DATA(gv_no_lines).
+  gv_index = 5.
+
+  IF gv_index <= gv_no_lines.
+    DATA(gs_str_3) = gt_table[ 5 ].
+     WRITE:  gs_str_1-id       ,
+            gs_str_1-agencynum,
+            gs_str_1-name     ,
+            gs_str_1-street   ,
+            gs_str_1-postbox  ,
+            gs_str_1-postcode ,
+            gs_str_1-city     ,
+            gs_str_1-country  ,
+            gs_str_1-region   ,
+            gs_str_1-telephone,
+            gs_str_1-url      ,
+            gs_str_1-langu    ,
+            gs_str_1-currency .
+  ENDIF.
+
+
+**********************************************************************
+
+
+START-OF-SELECTION.
+SELECT * FROM zmk_stravelag INTO TABLE @DATA(gt_table).
+
+  " Abap 7.40 öncesi
+  READ TABLE gt_table INTO DATA(gs_str_1)
+    WITH KEY agencynum = '00000061' name = 'Fly High'.
+  IF sy-subrc IS INITIAL.
+     WRITE:  gs_str_1-id       ,
+            gs_str_1-agencynum,
+            gs_str_1-name     ,
+            gs_str_1-street   ,
+            gs_str_1-postbox  ,
+            gs_str_1-postcode ,
+            gs_str_1-city     ,
+            gs_str_1-country  ,
+            gs_str_1-region   ,
+            gs_str_1-telephone,
+            gs_str_1-url      ,
+            gs_str_1-langu    ,
+            gs_str_1-currency .
+  ENDIF.
+
+SKIP.
+
+  " Nach Abap 7.40 
+TRY.
+  DATA(gs_str_2) = gt_table[ agencynum = '00000061' name = 'Fly High' ].
+CATCH cx_sy_itab_line_not_found.
+  BREAK-POINT.
+ENDTRY.
+
+IF gs_str_2 IS NOT INITIAL.
+   WRITE:  gs_str_1-id       ,
+          gs_str_1-agencynum,
+          gs_str_1-name     ,
+          gs_str_1-street   ,
+          gs_str_1-postbox  ,
+          gs_str_1-postcode ,
+          gs_str_1-city     ,
+          gs_str_1-country  ,
+          gs_str_1-region   ,
+          gs_str_1-telephone,
+          gs_str_1-url      ,
+          gs_str_1-langu    ,
+          gs_str_1-currency .
+ENDIF.
+
+
+**********************************************************************
+
+
+START-OF-SELECTION.
+
+SELECT * FROM zmk_stravelag INTO TABLE @DATA(gt_table).
+  
+  " Vor Abap 7.40 
+  READ TABLE gt_table TRANSPORTING NO FIELDS 
+     WITH KEY agencynum = '00000061' name = 'Fly High'.
+  
+  IF sy-subrc IS INITIAL.
+    DATA(gv_index_1) = sy-tabix.
+  ENDIF.
+  
+  SKIP.
+  
+  "Nach Abap 7.40 
+  DATA(gv_index_2) = line_index( gt_table[ agencynum = '00000061' name = 'Fly High' ] ).
+
+**********************************************************************
+**********************************************************************
+
+" Value Command
+
+TYPES: BEGIN OF gty_table,
+         id      TYPE c LENGTH 6,
+         name    TYPE c LENGTH 20,
+         surname TYPE c LENGTH 20,
+         address TYPE c LENGTH 50,
+       END OF gty_table,
+
+DATA: gs_str   TYPE gty_table,
+      gt_table TYPE TABLE OF gty_table.
+
+START-OF-SELECTION.
+
+  gs_str = VALUE #( id      = '000001'
+                    name    = 'Mehmet'
+                    surname = 'Köksal'
+                    address = 'Holtkamp 4, 59368 Werne' ).
+  
+  gt_table = VALUE #( ( id      = '000002'
+                        name    = 'Murat'
+                        surname = 'Arslan'
+                        address = 'Belören Sok. Safranbolu' )
+                      ( id      = '000003'
+                        name    = 'Abidin'
+                        surname = 'Tezel'
+                        address = 'Saray Sok. İzmit' )
+                      ( id      = '000004'
+                        name    = 'Salih'
+                        surname = 'Günaydın'
+                        address = 'Dereici Sok. Ankara' ) ).
+
+******************************************************************************
+
+Lassen Sie uns den Value-Command zusammen mit der Inline-Deklaration verwenden.
+
+TYPES: BEGIN OF gty_table,
+         id      TYPE c LENGTH 6,
+         name    TYPE c LENGTH 20,
+         surname TYPE c LENGTH 20,
+         address TYPE c LENGTH 50,
+       END OF gty_table.
+
+TYPES: gtt_table TYPE TABLE OF gty_table WITH NON-UNIQUE KEY id.
+
+START-OF-SELECTION.
+
+  DATA(gs_str) = VALUE gty_table( id      = '000001'
+                                  name    = 'Mehmet'
+                                  surname = 'Köksal'
+                                  address = 'Holtkamp 4, 59368 Werne' ).
+
+  DATA(gt_table) = VALUE gtt_table( ( id      = '000002'
+                                      name    = 'Murat'
+                                      surname = 'Arslan'
+                                      address = 'Belören Sok. Safranbolu' )
+                                    ( id      = '000003'
+                                      name    = 'Abidin'
+                                      surname = 'Tezel'
+                                      address = 'Saray Sok. İzmit' )
+                                    ( id      = '000004'
+                                      name    = 'Salih'
+                                      surname = 'Günaydın'
+                                      address = 'Dereici Sok. Ankara' ) ).
+
+*****************************************************************************
+
+" FOR – IN-Schleife mit Value-Command
+
+TYPES: BEGIN OF gty_table,
+         id        TYPE zmk_de_id,
+         agencynum TYPE s_agncynum,
+         name      TYPE s_agncynam,
+         street    TYPE s_street,
+         url       TYPE s_url,
+       END OF gty_table.
+       
+DATA: gt_table TYPE TABLE OF gty_table.
+       
+START-OF-SELECTION.
+       
+SELECT * FROM zmk_stravelag INTO TABLE @DATA(gt_stravelag).
+  
+  gt_table = VALUE #( FOR gs_stravelag
+                      IN gt_stravelag
+                      WHERE ( id < 30 )
+                      ( id        = gs_stravelag-id       
+                        agencynum = gs_stravelag-agencynum
+                        name      = gs_stravelag-name     
+                        street    = gs_stravelag-street   
+                        url       = gs_stravelag-url ) ).
+
+*****************************************************************************
+
+" Lassen Sie uns die FOR – IN-Schleife mit der Inline-Deklaration verwenden.
+
+TYPES: BEGIN OF gty_table,
+         id        TYPE zmk_de_id,
+         agencynum TYPE s_agncynum,
+         name      TYPE s_agncynam,
+         street    TYPE s_street,
+         url       TYPE s_url,
+       END OF gty_table.
+
+TYPES: gtt_table TYPE TABLE OF gty_table WITH NON-UNIQUE KEY id.
+
+START-OF-SELECTION.
+
+SELECT * FROM zmk_stravelag INTO TABLE @DATA(gt_stravelag).
+
+  DATA(gt_table) = VALUE gtt_table( FOR gs_stravelag
+                                    IN gt_stravelag
+                                    WHERE ( id < 30 )
+                                    ( id        = gs_stravelag-id
+                                      agencynum = gs_stravelag-agencynum
+                                      name      = gs_stravelag-name
+                                      street    = gs_stravelag-street
+                                      url       = gs_stravelag-url ) ).
+
+*****************************************************************************
+*****************************************************************************
+
+" Base Command
+
+TYPES: BEGIN OF gty_table,
+         id        TYPE zmk_de_id,
+         agencynum TYPE s_agncynum,
+         name      TYPE s_agncynam,
+         street    TYPE s_street,
+         url       TYPE s_url,
+       END OF gty_table.
+
+TYPES: gtt_table TYPE TABLE OF gty_table WITH NON-UNIQUE KEY id.
+
+START-OF-SELECTION.
+
+SELECT * FROM zmk_stravelag INTO TABLE @DATA(gt_stravelag).
+
+  DATA(gt_table) = VALUE gtt_table( FOR gs_stravelag
+                                    IN gt_stravelag
+                                    WHERE ( id < 20 )
+                                    ( id        = gs_stravelag-id
+                                      agencynum = gs_stravelag-agencynum
+                                      name      = gs_stravelag-name
+                                      street    = gs_stravelag-street
+                                      url       = gs_stravelag-url ) ).
+  
+  gt_table = VALUE gtt_table( BASE gt_table
+                              FOR gs_stravelag
+                              IN gt_stravelag
+                              WHERE ( id > 30 )
+                              ( id        = gs_stravelag-id
+                                agencynum = gs_stravelag-agencynum
+                                name      = gs_stravelag-name
+                                street    = gs_stravelag-street
+                                url       = gs_stravelag-url ) ).
+
+
+*****************************************************************************
+*****************************************************************************
+
+DATA: gv_no TYPE i.
+
+START-OF-SELECTION.
+
+SELECT * FROM zmk_stravelag INTO TABLE @DATA(gt_stravelag).
+  
+  " Vor Abap 7.40 
+  LOOP AT gt_stravelag INTO DATA(gs_stravelag) WHERE country = 'DE'.
+    gv_no = gv_no + 1.
+  ENDLOOP.
+  
+  " Nach Abap 7.40 
+  DATA(gv_number) = REDUCE i( INIT x = 0
+                              FOR gs_str
+                              IN gt_stravelag
+                              WHERE ( country = 'DE' )
+                              NEXT x = x + 1 ).
+
+********************************************************************************
+
+PARAMETERS: p_yil TYPE c LENGTH 4,
+            p_id  TYPE zmk_de_id.
+
+DATA: gv_no TYPE i.
+
+START-OF-SELECTION.
+
+SELECT * FROM zmk_tablo_2 INTO TABLE @DATA(gt_tablo_2).
+
+" Vor Abap 7.40
+LOOP AT gt_tablo_2 INTO DATA(gs_tablo_2) WHERE id = p_id AND yil = p_yil.
+  gv_no = gv_no + gs_tablo_2-kul_izin.
+ENDLOOP.
+
+" Nach Abap 7.40 
+DATA(gv_number) = REDUCE i( INIT x = 0
+                            FOR gs_str
+                            IN gt_tablo_2
+                            WHERE ( id = p_id AND yil = p_yil )
+                            NEXT x = x + gs_str-kul_izin ).
+
+*****************************************************************************
+*****************************************************************************
+
+" Cond – When – Then – Else Command
+
+PARAMETERS: p_number TYPE i.
+
+DATA: gv_day_01 TYPE string,
+      gv_day_02 TYPE string.
+
+START-OF-SELECTION.
+
+" Vor Abap 7.40
+CASE gv_number.
+  WHEN 1.
+    gv_day_01 = 'Montag'.
+  WHEN 2.
+    gv_day_01 = 'Dienstag'.
+  WHEN 3.
+    gv_day_01 = 'Mittwoch'.
+  WHEN 4.
+    gv_day_01 = 'Donnerstag'.
+  WHEN 5.
+    gv_day_01 = 'Freitag'.
+  WHEN 6.
+    gv_day_01 = 'Samstag'.
+  WHEN 7.
+    gv_day_01 = 'Sonntag'.
+  WHEN OTHERS.
+    gv_day_01 = 'Geben Sie eine gültige Anzahl an Tagen ein.'.
+ENDCASE.
+
+WRITE: gv_day_01.
+
+" Nach Abap 7.40 
+gv_day_02 = COND #( WHEN p_number = 1 THEN 'Montag'
+                    WHEN p_number = 2 THEN 'Dienstag'
+                    WHEN p_number = 3 THEN 'Mittwoch'
+                    WHEN p_number = 4 THEN 'Donnerstag'
+                    WHEN p_number = 5 THEN 'Freitag'
+                    WHEN p_number = 6 THEN 'Samstag'
+                    WHEN p_number = 7 THEN 'Sonntag'
+                    ELSE 'Geben Sie eine gültige Anzahl an Tagen ein.' ).
+WRITE: / gv_day_02. 
+
+***************************************************************************
+
+PARAMETERS: p_scarr RADIOBUTTON GROUP abc,
+            p_spfli RADIOBUTTON GROUP abc,
+            p_sflgt RADIOBUTTON GROUP abc.
+
+DATA: go_select  TYPE REF TO zabap_cm_select_new,
+      gt_scarr   TYPE TABLE OF scarr,
+      gt_spfli   TYPE TABLE OF spfli,
+      gt_sflight TYPE TABLE OF sflight.
+
+FIELD-SYMBOLS: <fs_table> TYPE ANY TABLE.
+
+START-OF-SELECTION.
+
+CREATE OBJECT go_select.
+
+IF p_scarr = abap_true.
+  ASSIGN gt_scarr TO <fs_table>.
+ELSEIF p_spfli = abap_true.
+  ASSIGN gt_spfli TO <fs_table>.
+ELSEIF p_sflgt = abap_true.
+  ASSIGN gt_sflight TO <fs_table>.
+ENDIF.
+
+go_select->get_table(
+  EXPORTING
+    iv_tabname = COND #( WHEN p_scarr = abap_true THEN 'SCARR'
+                         WHEN p_scarr = abap_true THEN 'SPFLI'
+                         WHEN p_scarr = abap_true THEN 'SFLIGHT' )
+  IMPORTING
+    et_data    = <fs_table> ).
+
+********************************************************************************
+********************************************************************************
+
+TYPES: BEGIN OF gty_table,
+         id       TYPE zmk_de_id,
+         yil      TYPE c LENGTH 4,
+         kul_izin TYPE int1,
+       END OF gty_table.
+
+DATA: gs_izin      TYPE gty_table,
+      gs_izin_yeni TYPE gty_table,
+      gt_tablo_2   TYPE TABLE OF zmk_tablo_2,
+      gs_tablo_2   TYPE zmk_tablo_2.
+
+START-OF-SELECTION.
+
+SELECT * FROM zmk_tablo_2 INTO TABLE gt_tablo_2.
+  
+  " Abap 7.40 öncesi
+  LOOP AT gt_tablo_2 INTO gs_tablo_2.
+    MOVE-CORRESPONDING gs_tablo_2 TO gs_izin.
+  ENDLOOP.
+  
+  " Abap 7.40 sonrası
+  LOOP AT gt_tablo_2 INTO gs_tablo_2.
+    gs_izin_yeni = CORRESPONDING #( gs_tablo_2 ).
+  ENDLOOP.
+
+  **********************************************************************************
+
+  TYPES: BEGIN OF gty_table,
+         id       TYPE zmk_de_id,
+         yil      TYPE c LENGTH 4,
+         kul_izin TYPE int1,
+       END OF gty_table.
+
+DATA: gt_izin      TYPE TABLE OF gty_table,
+      gt_izin_yeni TYPE TABLE OF gty_table,
+      gt_tabl0_2   TYPE TABLE OF zmk_tablo_2.
+
+START-OF-SELECTION.
+
+  SELECT * FROM zmk_tablo_2 INTO TABLE gt_tabl0_2.
+    
+" Abap 7.40 öncesi
+  MOVE-CORRESPONDING gt_tabl0_2 TO gt_izin.
+    
+" Abap 7.40 sonrası
+  gt_izin_yeni = CORRESPONDING #( gt_tabl0_2 ).
+
+  ****************************************************************************************
+
+  PARAMETERS: p_id_1 TYPE zmk_de_id,
+            p_id_2 TYPE zmk_de_id.
+
+TYPES: BEGIN OF gty_table,
+         id       TYPE zmk_de_id,
+         yil      TYPE c LENGTH 4,
+         kul_izin TYPE int1,
+       END OF gty_table.
+
+DATA: gt_izin TYPE TABLE OF gty_table,
+      gt_izin_yeni TYPE TABLE OF gty_table,
+      gt_tablo_2 TYPE TABLE OF zmk_tablo_2.
+
+START-OF-SELECTION.
+
+SELECT * FROM zmk_tablo_2 INTO TABLE gt_tablo_2
+  WHERE id = p_id_1.
+
+" Vor Abap 7.40 
+MOVE-CORRESPONDING gt_tablo_2 TO gt_izin.
+
+" Nach Abap 7.40 
+gt_izin_yeni = CORRESPONDING #( gt_tablo_2 ).
+
+SELECT * FROM zmk_tablo_2 INTO TABLE gt_tablo_2
+  WHERE id = p_id_2.
+
+" Vor Abap 7.40 
+MOVE-CORRESPONDING gt_tablo_2 TO gt_izin KEEPING TARGET LINES.
+
+" Nach Abap 7.40 
+gt_izin_yeni = CORRESPONDING #( BASE ( gt_izin_yeni ) gt_tablo_2 ).
+
+*******************************************************************************
+*******************************************************************************
+
+" Concatenate Command (neuer Staat) 
+
+" Vor Abap 7.40 
+DATA: gv_text TYPE string.
+CONCATENATE 'Text 001' 'Text 002' INTO gv_text SEPARATED BY space.
+
+" Nach Abap 7.40 
+DATA(gv_text_new) = |Text 001| & | | & |Text 002|.
+
+DATA(text_1) = 'Text 001'.
+DATA(text_2) = 'Text 002'.
+
+DATA(gv_text_new_2) = |{ text_1 }| & | | & |{ text_2 }|.
+
+*******************************************************************************
+*******************************************************************************
+" Loop At Group Command
+
+DATA: gv_id TYPE zmk_de_id.
+
+SELECTION-SCREEN BEGIN OF BLOCK a1 WITH FRAME TITLE TEXT-001.
+  SELECT-OPTIONS: so_id FOR gv_id.
+  PARAMETERS    : p_yil TYPE c LENGTH 4.
+SELECTION-SCREEN END OF BLOCK a1.
+
+DATA: gv_name_sname TYPE string,
+      gv_text       TYPE string,
+      gv_izin       TYPE n LENGTH 4.
+
+START-OF-SELECTION.
+
+SELECT * FROM zmk_tablo_1 INTO TABLE @DATA(gt_tablo_1).
+SELECT * FROM zmk_tablo_2 INTO TABLE @DATA(gt_tablo_2).
+
+  LOOP AT gt_tablo_2 INTO DATA(gs_tablo_2) WHERE id IN so_id AND yil = p_yil
+                                           GROUP BY ( id = gs_tablo_2-id )
+                                           INTO DATA(gt_group).
+    LOOP AT GROUP gt_group INTO DATA(gs_group).
+      IF gv_name_sname IS INITIAL.
+        READ TABLE gt_tablo_1 INTO DATA(gs_tablo_1) WITH KEY id = gs_group-id.
+        IF sy-subrc IS INITIAL.
+          gv_name_sname = |{ gs_tablo_1-ad }| & | | & |{ gs_tablo_1-soyad }|.
+        ENDIF.
+      ENDIF.
+      gv_izin = gv_izin + gs_group-kul_izin.
+      SHIFT gv_izin LEFT DELETING LEADING '0'.
+    ENDLOOP.
+
+    gv_text = |{ gv_name_sname }| & | | & |{ gv_izin }|.
+    WRITE: / gv_text.
+    CLEAR: gv_name_sname, gv_izin.
+  ENDLOOP.
+
+  ***************************************************************************************
+  ***************************************************************************************
+
+  " New Command
+
+PARAMETERS: p_i_bas TYPE sy-datum OBLIGATORY,
+            p_i_bit TYPE sy-datum OBLIGATORY,
+            p_id    TYPE zmk_de_id OBLIGATORY.
+
+DATA: "go_yilli_izin      TYPE REF TO zcmtest_yillik_izin_class_tst,
+      gv_calisan_mevcut  TYPE c LENGTH 1,
+      gv_yil_1           TYPE char4,
+      gv_yil_2           TYPE char4,
+      gv_talep_izin_1    TYPE int1,
+      gv_talep_izin_2    TYPE int1,
+      gv_izin_alabilir_1 TYPE c LENGTH 1,
+      gv_izin_alabilir_2 TYPE c LENGTH 1,
+      gv_answer          TYPE c LENGTH 1.
+
+START-OF-SELECTION.
+
+"CREATE OBJECT go_yilli_izin.
+
+DATA(go_yilli_izin) = NEW zcmtest_yillik_izin_class_tst( ).
+
+
+
+
+
