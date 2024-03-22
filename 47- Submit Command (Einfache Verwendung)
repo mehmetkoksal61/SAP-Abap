@@ -1,0 +1,165 @@
+SELECTION-SCREEN BEGIN OF BLOCK a1 WITH FRAME TITLE TEXT-001 NO INTERVALS.
+  PARAMETERS : p_table TYPE tabname.
+SELECTION-SCREEN END OF BLOCK a1.
+
+START-OF-SELECTION.
+
+CASE p_table.
+  WHEN 'SCARR'.
+    SUBMIT zmk_test_59_01.
+  WHEN 'SPFLI'.
+    SUBMIT zmk_test_59_02.
+  WHEN 'SFLIGHT'.
+    SUBMIT zmk_test_59_03.
+ENDCASE.
+
+***********************************************************************************
+
+REPORT ZMK_TEST_59_01.
+
+DATA: gt_table  TYPE TABLE OF scarr,
+      gt_fcat   TYPE lvc_t_fcat,
+      gs_layout TYPE lvc_s_layo.
+
+START-OF-SELECTION.
+
+  SELECT * FROM scarr INTO TABLE gt_table.
+
+  CHECK gt_table IS NOT INITIAL.
+
+  CALL FUNCTION 'LVC_FIELDCATALOG_MERGE'
+    EXPORTING
+      i_structure_name       = 'SCARR'
+      i_bypassing_buffer     = abap_true
+    CHANGING
+      ct_fieldcat            = gt_fcat
+    EXCEPTIONS
+      inconsistent_interface = 1
+      program_error          = 2
+      OTHERS                 = 3.
+
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+
+  gs_layout-zebra      = abap_true.
+  gs_layout-cwidth_opt = abap_true.
+  gs_layout-sel_mode   = 'A'.
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY_LVC'
+    EXPORTING
+      i_callback_program = sy-repid
+      is_layout_lvc      = gs_layout
+      it_fieldcat_lvc    = gt_fcat
+    TABLES
+      t_outtab           = gt_table
+    EXCEPTIONS
+      program_error      = 1
+      OTHERS             = 2.
+
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+
+***********************************************************************************
+
+REPORT ZMK_TEST_59_02.
+
+DATA: gt_table  TYPE TABLE OF spfli,
+      gt_fcat   TYPE lvc_t_fcat,
+      gs_layout TYPE lvc_s_layo.
+
+START-OF-SELECTION.
+
+  SELECT * FROM spfli INTO TABLE gt_table.
+
+  CHECK gt_table IS NOT INITIAL.
+
+  CALL FUNCTION 'LVC_FIELDCATALOG_MERGE'
+    EXPORTING
+      i_structure_name       = 'SCARR'
+      i_bypassing_buffer     = abap_true
+    CHANGING
+      ct_fieldcat            = gt_fcat
+    EXCEPTIONS
+      inconsistent_interface = 1
+      program_error          = 2
+      OTHERS                 = 3.
+
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+
+  gs_layout-zebra      = abap_true.
+  gs_layout-cwidth_opt = abap_true.
+  gs_layout-sel_mode   = 'A'.
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY_LVC'
+    EXPORTING
+      i_callback_program = sy-repid
+      is_layout_lvc      = gs_layout
+      it_fieldcat_lvc    = gt_fcat
+    TABLES
+      t_outtab           = gt_table
+    EXCEPTIONS
+      program_error      = 1
+      OTHERS             = 2.
+
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+
+***********************************************************************************
+
+REPORT ZMK_TEST_59_03.
+
+DATA: gt_table  TYPE TABLE OF sflight,
+      gt_fcat   TYPE lvc_t_fcat,
+      gs_layout TYPE lvc_s_layo.
+
+START-OF-SELECTION.
+
+  SELECT * FROM sflight INTO TABLE gt_table.
+
+  CHECK gt_table IS NOT INITIAL.
+
+  CALL FUNCTION 'LVC_FIELDCATALOG_MERGE'
+    EXPORTING
+      i_structure_name       = 'SCARR'
+      i_bypassing_buffer     = abap_true
+    CHANGING
+      ct_fieldcat            = gt_fcat
+    EXCEPTIONS
+      inconsistent_interface = 1
+      program_error          = 2
+      OTHERS                 = 3.
+
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+
+  gs_layout-zebra      = abap_true.
+  gs_layout-cwidth_opt = abap_true.
+  gs_layout-sel_mode   = 'A'.
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY_LVC'
+    EXPORTING
+      i_callback_program = sy-repid
+      is_layout_lvc      = gs_layout
+      it_fieldcat_lvc    = gt_fcat
+    TABLES
+      t_outtab           = gt_table
+    EXCEPTIONS
+      program_error      = 1
+      OTHERS             = 2.
+
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+
+***********************************************************************************
+
+
+
+
+
