@@ -1,0 +1,228 @@
+DATA: gt_table   TYPE TABLE OF zmk_table_001,
+      gs_table   TYPE zmk_table_001,
+      gv_id      TYPE zcm_de_id,
+      gv_name    TYPE zmk_de_name,
+      gv_surname TYPE zmk_de_surname,
+      gv_job     TYPE zmk_de_job,
+      gv_salary  TYPE zmk_de_salary,
+      gv_curr    TYPE zmk_de_curr,
+      gv_gsm     TYPE zmk_de_gsm,
+      gv_e_mail  TYPE zmk_de_email.
+
+DATA: go_alvgrid   TYPE REF TO cl_gui_alv_grid,
+      go_container TYPE REF TO cl_gui_custom_container,
+      gt_fieldcat  TYPE lvc_t_fcat,
+      gs_fieldcat  TYPE lvc_s_fcat,
+      gs_layout    TYPE lvc_s_layo.
+
+START-OF-SELECTION.
+  CALL  SCREEN 0100.
+*&---------------------------------------------------------------------*
+*& Module STATUS_0100 OUTPUT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+MODULE status_0100 OUTPUT.
+  SET PF-STATUS 'PF_STATUS_156'.
+  SET TITLEBAR 'TITLE_156'.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0100  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_0100 INPUT.
+  CASE sy-ucomm.
+    WHEN 'BACK' OR 'EXIT' OR 'CANCEL'.
+      LEAVE PROGRAM.
+    WHEN 'READ'.
+      IF gv_id IS NOT INITIAL.
+        CLEAR: gs_table.
+
+        SELECT SINGLE * FROM zmk_table_001
+          INTO gs_table WHERE id = gv_id.
+
+        IF gs_table IS NOT INITIAL.
+          gv_name    = gs_table-name   .
+          gv_surname = gs_table-surname.
+          gv_job     = gs_table-job    .
+          gv_salary  = gs_table-salary .
+          gv_curr    = gs_table-curr   .
+          gv_gsm     = gs_table-gsm    .
+          gv_e_mail  = gs_table-e_mail .
+        ELSE.
+          CLEAR: gv_name, gv_surname, gv_job, gv_salary, gv_curr, gv_gsm, gv_e_mail.
+          MESSAGE 'Für die eingegebene ID wurde kein Datensatz gefunden.' TYPE 'S' DISPLAY LIKE 'E'.
+        ENDIF.
+      ELSE.
+        MESSAGE 'Lassen Sie das ID-Feld nicht leer.' TYPE 'S' DISPLAY LIKE 'E'.
+      ENDIF.
+    WHEN 'DELETE'.
+      IF gv_id IS NOT INITIAL.
+        DELETE FROM zmk_table_001 WHERE id = gv_id.
+
+        IF sy-subrc IS INITIAL.
+          MESSAGE 'Das Löschen der Zeile war erfolgreich.' TYPE 'S'.
+        ELSE.
+          MESSAGE 'Für die eingegebene ID wurde kein Datensatz gefunden.' TYPE 'S' DISPLAY LIKE 'E'.
+        ENDIF.
+      ELSE.
+        MESSAGE 'Lassen Sie das ID-Feld nicht leer.' TYPE 'S' DISPLAY LIKE 'E'.
+      ENDIF.
+    WHEN 'UPDATE'.
+      IF gv_id IS NOT INITIAL.
+        UPDATE zmk_table_001 SET name    = gv_name
+                                 surname = gv_surname
+                                 job     = gv_job
+                                 salary  = gv_salary
+                                 curr    = gv_curr
+                                 gsm     = gv_gsm
+                                 e_mail  = gv_e_mail
+                                WHERE id = gv_id.
+        IF sy-subrc IS INITIAL.
+          MESSAGE 'Der Zeilenaktualisierungsvorgang war erfolgreich.' TYPE 'S'.
+        ELSE.
+          MESSAGE 'Für die eingegebene ID wurde kein Datensatz gefunden.' TYPE 'S' DISPLAY LIKE 'E'.
+        ENDIF.
+      ELSE.
+        MESSAGE 'Lassen Sie das ID-Feld nicht leer.' TYPE 'S' DISPLAY LIKE 'E'.
+      ENDIF.
+    WHEN 'CREATE'.
+      gs_table-id      = gv_id.
+      gs_table-name    = gv_name.
+      gs_table-surname = gv_surname.
+      gs_table-job     = gv_job.
+      gs_table-salary  = gv_salary.
+      gs_table-curr    = gv_curr.
+      gs_table-gsm     = gv_gsm.
+      gs_table-e_mail  = gv_e_mail.
+
+      INSERT zmk_table_001 FROM gs_table.
+
+      IF sy-subrc IS INITIAL.
+        MESSAGE 'Das Hinzufügen eines neuen Datensatzes war erfolgreich.' TYPE 'S'.
+      ELSE.
+        MESSAGE 'Das Hinzufügen eines neuen Datensatzes war nicht erfolgreich.' TYPE 'S' DISPLAY LIKE 'E'.
+      ENDIF.
+    WHEN 'ALV'.
+      PERFORM select_data.
+      PERFORM fcat.
+      PERFORM layout.
+      PERFORM show_alv.
+  ENDCASE.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*& Form select_data
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM select_data .
+  SELECT * FROM zmk_table_001 INTO TABLE gt_table.
+ ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form fcat
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM fcat .
+   CALL FUNCTION 'LVC_FIELDCATALOG_MERGE'
+   EXPORTING
+     I_STRUCTURE_NAME             = 'ZMK_TABLE_001'
+     I_BYPASSING_BUFFER           = abap_true
+    CHANGING
+      ct_fieldcat                  = gt_fieldcat
+   EXCEPTIONS
+     INCONSISTENT_INTERFACE       = 1
+     PROGRAM_ERROR                = 2
+     OTHERS                       = 3
+            .
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form layout
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM layout .
+  gs_layout-zebra      = abap_true.
+  gs_layout-cwidth_opt = abap_true.
+  gs_layout-sel_mode   = 'A'.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form show_alv
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM show_alv .
+  IF go_alvgrid IS INITIAL.
+    CREATE OBJECT go_container
+      EXPORTING
+        container_name              = 'CC_ALV'
+      EXCEPTIONS
+        cntl_error                  = 1
+        cntl_system_error           = 2
+        create_error                = 3
+        lifetime_error              = 4
+        lifetime_dynpro_dynpro_link = 5
+        others                      = 6  .
+
+    IF SY-SUBRC IS NOT INITIAL.
+      LEAVE PROGRAM.
+    ENDIF.
+
+    CREATE OBJECT go_alvgrid
+      EXPORTING
+        i_parent                = go_container
+      EXCEPTIONS
+        error_cntl_create       = 1
+        error_cntl_init         = 2
+        error_cntl_link         = 3
+        error_dp_create         = 4
+        others                  = 5 .
+
+    IF SY-SUBRC IS NOT INITIAL.
+      LEAVE PROGRAM.
+    ENDIF.
+
+    go_alvgrid->set_table_for_first_display(
+      EXPORTING
+        is_layout                     = gs_layout
+      CHANGING
+        it_outtab                     = gt_table
+        it_fieldcatalog               = gt_fieldcat
+      EXCEPTIONS
+        invalid_parameter_combination = 1
+        program_error                 = 2
+        too_many_lines                = 3
+        others                        = 4 ).
+
+    IF SY-SUBRC IS NOT INITIAL.
+      LEAVE PROGRAM.
+    ENDIF.
+
+  ELSE.
+*    go_alvgrid->check_changed_data( ).
+
+    go_alvgrid->refresh_table_display(
+      EXCEPTIONS
+        finished       = 1
+        others         = 2 ).
+    IF SY-SUBRC <> 0.
+      LEAVE PROGRAM.
+    ENDIF.
+  ENDIF.
+ENDFORM.
