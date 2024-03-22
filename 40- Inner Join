@@ -1,0 +1,61 @@
+*TYPES: BEGIN OF gty_table,
+*         id             TYPE zmk_de_id,
+*         ad             TYPE zmk_de_info_ad,
+*         soyad          TYPE zmk_de_info_sad,
+*         izin_baslangic TYPE datum,
+*         izin_bitis     TYPE datum,
+*       END OF gty_table.
+*
+*DATA: gt_tablo_1   TYPE TABLE OF zmk_tablo_1,
+*      gt_tablo_2   TYPE TABLE OF zmk_tablo_2,
+*      gt_tablo_son TYPE TABLE OF gty_table,
+*      gs_tablo_1   TYPE zmk_tablo_1,
+*      gs_tablo_2   TYPE zmk_tablo_2,
+*      gs_tablo_son TYPE gty_table.
+*
+*START-OF-SELECTION.
+*
+* SELECT * FROM zmk_tablo_1 INTO TABLE gt_tablo_1.
+* SELECT * FROM zmk_tablo_2 INTO TABLE gt_tablo_2.
+*
+* LOOP AT gt_tablo_1 INTO gs_tablo_1.
+*   gs_tablo_son-id    = gs_tablo_1-id.
+*   gs_tablo_son-ad    = gs_tablo_1-ad.
+*   gs_tablo_son-soyad = gs_tablo_1-soyad.
+*
+*   LOOP AT gt_tablo_2 INTO gs_tablo_2 WHERE id = gs_tablo_1-id.
+*     gs_tablo_son-izin_baslangic = gs_tablo_2-izin_baslangic.
+*     gs_tablo_son-izin_bitis     = gs_tablo_2-izin_bitis.
+*
+*     APPEND gs_tablo_son TO gt_tablo_son.
+*   ENDLOOP.
+*
+*   CLEAR: gs_tablo_son.
+* ENDLOOP.
+*
+*   BREAK-POINT.
+
+*******************************************************
+
+TYPES: BEGIN OF gty_table,
+         id             TYPE zmk_de_id,
+         ad             TYPE zmk_de_info_ad,
+         soyad          TYPE zmk_de_info_sad,
+         izin_baslangic TYPE datum,
+         izin_bitis     TYPE datum,
+       END OF gty_table.
+
+DATA: gt_tablo_son TYPE TABLE OF gty_table.
+
+START-OF-SELECTION.
+
+  SELECT zmk_tablo_1~id, zmk_tablo_1~ad,
+         zmk_tablo_1~soyad,
+         zmk_tablo_2~izin_baslangic,
+         zmk_tablo_2~izin_bitis
+    INTO TABLE @gt_tablo_son
+    FROM zmk_tablo_1
+    INNER JOIN zmk_tablo_2
+    ON zmk_tablo_1~id = zmk_tablo_2~id.
+
+  SORT gt_tablo_son BY id.
