@@ -1,0 +1,191 @@
+DATA: go_alvgrid   TYPE REF TO cl_gui_alv_grid,
+      go_container TYPE REF TO cl_gui_custom_container,
+      gt_fieldcat  TYPE lvc_t_fcat,
+      gs_layout    TYPE lvc_s_layo,
+      gv_flag      TYPE flag.
+
+TYPES: BEGIN OF gty_list.
+         INCLUDE STRUCTURE sflight.
+TYPES: END OF gty_list.
+
+DATA: gt_list TYPE TABLE OF gty_list.
+
+START-OF-SELECTION.
+
+  CALL SCREEN 0100.
+*&---------------------------------------------------------------------*
+*& Module STATUS_0100 OUTPUT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+MODULE status_0100 OUTPUT.
+  SET PF-STATUS 'PF_STATUS_150'.
+  SET TITLEBAR 'TITLE_150'.
+
+  PERFORM selec_data.
+  PERFORM fcat.
+  PERFORM layout.
+  PERFORM show_data.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0100  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_0100 INPUT.
+
+  DATA: lt_selected_rows TYPE lvc_t_roid,
+        ls_selected_rows TYPE lvc_s_roid,
+        lt_list          TYPE TABLE OF gty_list,
+        ls_list          TYPE gty_list.
+
+  CASE sy-ucomm.
+    WHEN 'GERI' OR 'EXIT' OR 'CANCEL'.
+      LEAVE PROGRAM.
+    WHEN 'SIL'.
+      go_alvgrid->get_selected_rows(
+        IMPORTING
+          et_row_no     = lt_selected_rows  ).
+
+      lt_list = gt_list.
+
+      LOOP AT lt_selected_rows INTO ls_selected_rows.
+
+        READ TABLE lt_list INTO ls_list
+                           INDEX ls_selected_rows-row_id.
+
+        IF sy-subrc IS INITIAL.
+          DELETE gt_list WHERE carrid = ls_list-carrid AND
+                               connid = ls_list-connid AND
+                               fldate = ls_list-fldate.
+               gv_flag = abap_true.
+        ENDIF.
+      ENDLOOP.
+    WHEN 'RESET'.
+      CLEAR: gt_list.
+      SELECT * FROM sflight
+        INTO CORRESPONDING FIELDS OF TABLE gt_list.
+
+  ENDCASE.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*& Form selec_data
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM selec_data .
+
+  IF gt_list IS INITIAL AND gv_flag IS INITIAL.
+    SELECT * FROM sflight INTO CORRESPONDING FIELDS OF TABLE gt_list.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form fcat
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM fcat .
+  CALL FUNCTION 'LVC_FIELDCATALOG_MERGE'
+    EXPORTING
+      i_structure_name       = 'SFLIGHT'
+      i_bypassing_buffer     = abap_true
+    CHANGING
+      ct_fieldcat            = gt_fieldcat
+    EXCEPTIONS
+      inconsistent_interface = 1
+      program_error          = 2
+      OTHERS                 = 3.
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form layout
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM layout .
+  gs_layout-zebra      = abap_true.
+  gs_layout-cwidth_opt = abap_true.
+  gs_layout-sel_mode   = 'A'.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form show_data
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM show_data .
+  IF go_alvgrid IS INITIAL.
+
+    CREATE OBJECT go_container
+      EXPORTING
+        container_name              = 'CC_ALV'
+      EXCEPTIONS
+        cntl_error                  = 1
+        cntl_system_error           = 2
+        create_error                = 3
+        lifetime_error              = 4
+        lifetime_dynpro_dynpro_link = 5
+        OTHERS                      = 6.
+
+    IF sy-subrc IS NOT INITIAL.
+      LEAVE PROGRAM.
+    ENDIF.
+
+    CREATE OBJECT go_alvgrid
+      EXPORTING
+        i_parent          = go_container
+      EXCEPTIONS
+        error_cntl_create = 1
+        error_cntl_init   = 2
+        error_cntl_link   = 3
+        error_dp_create   = 4
+        OTHERS            = 5.
+
+    IF sy-subrc IS NOT INITIAL.
+      LEAVE PROGRAM.
+    ENDIF.
+
+    go_alvgrid->set_table_for_first_display(
+      EXPORTING
+        is_layout                     = gs_layout
+      CHANGING
+        it_outtab                     = gt_list
+        it_fieldcatalog               = gt_fieldcat
+      EXCEPTIONS
+        invalid_parameter_combination = 1
+        program_error                 = 2
+        too_many_lines                = 3
+        OTHERS                        = 4 ).
+
+    IF sy-subrc IS NOT INITIAL.
+      LEAVE PROGRAM.
+    ENDIF.
+
+  ELSE.
+
+    go_alvgrid->refresh_table_display(
+      EXCEPTIONS
+        finished       = 1
+        OTHERS         = 2 ).
+
+    IF sy-subrc IS NOT INITIAL.
+      LEAVE PROGRAM.
+    ENDIF.
+
+  ENDIF.
+ENDFORM.
