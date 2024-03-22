@@ -7,13 +7,13 @@ START-OF-SELECTION.
 CASE p_table.
   WHEN 'SCARR'.
     SUBMIT zmk_test_63_01 AND RETURN.
-    MESSAGE 'SCARR tablosunun ALV''si gösterildi' TYPE 'S'.
+    MESSAGE 'Der ALV der SCARR-Tabelle wird angezeigt.' TYPE 'S'.
   WHEN 'SPFLI'.
     SUBMIT zmk_test_63_02 AND RETURN.
-    MESSAGE 'SPFLI tablosunun ALV''si gösterildi' TYPE 'S'.
+    MESSAGE 'Der ALV der SPFLI-Tabelle wird angezeigt.' TYPE 'S'.
   WHEN 'SFLIGHT'.
     SUBMIT zmk_test_63_03 AND RETURN.
-    MESSAGE 'SFLIGHT tablosunun ALV''si gösterildi' TYPE 'S'.
+    MESSAGE 'Der ALV der SFLIGHT-Tabelle wird angezeigt.' TYPE 'S'.
 ENDCASE.
 
 ******
