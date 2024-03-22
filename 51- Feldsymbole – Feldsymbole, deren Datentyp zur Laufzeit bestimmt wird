@@ -1,0 +1,131 @@
+DATA: gv_text  TYPE string VALUE 'Beispielbericht zur Verwendung von Feldsymbolen',
+      gs_scarr TYPE scarr,
+      gt_spfli TYPE TABLE OF spfli.
+
+FIELD-SYMBOLS: <fs_general> TYPE any,
+               <fs_field>   TYPE any,
+               <fs_str>     TYPE any,
+               <fs_table>   TYPE ANY TABLE.
+
+START-OF-SELECTION.
+ASSIGN gv_text TO <fs_general>.
+WRITE: <fs_general>.
+SKIP.
+*********************************
+SELECT SINGLE * FROM scarr
+  INTO gs_scarr
+  WHERE carrid = 'LH'.
+
+ASSIGN gs_scarr TO <fs_general>.
+
+ASSIGN COMPONENT 'CARRID' OF STRUCTURE <fs_general> TO <fs_field>.
+  WRITE: / <fs_field>.
+
+ASSIGN COMPONENT 'CARRNAME' OF STRUCTURE <fs_general> TO <fs_field>.
+  WRITE: / <fs_field>.
+
+*********************************
+
+SELECT * FROM spfli INTO TABLE gt_spfli.
+
+  ASSIGN gt_spfli TO <fs_table>.
+
+  LOOP AT <fs_table> ASSIGNING <fs_str>.
+    ASSIGN COMPONENT 'AIRPFROM' OF STRUCTURE <fs_str> TO <fs_field>.
+    WRITE: / <fs_field>.
+  ENDLOOP.
+
+
+
+***********************************
+
+DATA: gt_scarr   TYPE TABLE OF scarr,
+      gt_spfli   TYPE TABLE OF spfli,
+      gt_sflight TYPE TABLE OF sflight.
+
+FIELD-SYMBOLS: <fs_general> TYPE any,
+               <fs_field>   TYPE any,
+               <fs_str>     TYPE any,
+               <fs_table>   TYPE ANY TABLE.
+
+SELECT * FROM sflight INTO TABLE gt_sflight.
+SELECT * FROM spfli INTO TABLE gt_spfli.
+SELECT * FROM scarr INTO TABLE gt_scarr.
+
+ASSIGN gt_sflight TO <fs_table>.
+ASSIGN gt_spfli   TO <fs_table>.
+ASSIGN gt_scarr   TO <fs_table>.
+
+***************************************************************************
+***************************************************************************
+
+* UNASSIGN komutu
+
+PARAMETERS: p_scarr RADIOBUTTON GROUP abc,
+            p_spfli RADIOBUTTON GROUP abc,
+            p_slght RADIOBUTTON GROUP abc.
+
+DATA: go_select  TYPE REF TO zmkselect_data,
+      gt_scarr   TYPE TABLE OF scarr,
+      gt_spfli   TYPE TABLE OF spfli,
+      gt_sflight TYPE TABLE OF sflight,
+      gv_number  TYPE i VALUE 1.
+
+FIELD-SYMBOLS: <fs_table> TYPE ANY TABLE,
+               <fs_str>   TYPE any,
+               <fs_hucre> TYPE any.
+
+START-OF-SELECTION.
+
+  CREATE OBJECT go_select.
+
+  IF p_scarr = abap_true.
+    ASSIGN gt_scarr TO <fs_table>.
+  ELSEIF p_spfli = abap_true.
+    ASSIGN gt_spfli TO <fs_table>.
+  ELSEIF p_slght = abap_true.
+    ASSIGN gt_sflight TO <fs_table>.
+  ENDIF.
+
+  go_select->get_data(
+    EXPORTING
+      iv_get_scarr   = p_scarr
+      iv_get_spfli   = p_spfli
+      iv_get_sflight = p_slght
+    IMPORTING
+      et_data        = <fs_table>  ).
+
+LOOP AT <fs_table> ASSIGNING <fs_str>.
+  DO .
+    ASSIGN COMPONENT gv_number OF STRUCTURE <fs_str> TO <fs_hucre>.
+    IF <fs_hucre> IS ASSIGNED.
+      WRITE: <fs_hucre>.
+      UNASSIGN <fs_hucre>.
+    ELSE.
+      EXIT.
+    ENDIF.
+    gv_number = gv_number + 1.
+  ENDDO.
+  gv_number = 1.
+  SKIP.
+ENDLOOP.
+
+zmkselect_data Class'ı
+------------------------------
+
+
+
+
+  METHOD get_data.
+    DATA: lv_tabname TYPE tabname.
+
+    IF iv_get_scarr = abap_true.
+      lv_tabname = 'SCARR'.
+    ELSEIF iv_get_spfli = abap_true.
+      lv_tabname = 'SPFLI'.
+    ELSEIF iv_get_sflight = abap_true.
+      lv_tabname = 'SFLIGHT'.
+    ENDIF.
+
+    SELECT * FROM (lv_tabname) INTO TABLE et_data.
+  ENDMETHOD.
