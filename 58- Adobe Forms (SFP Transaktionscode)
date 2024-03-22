@@ -1,0 +1,415 @@
+" Virtueller Drucker LP01 ve Print Overview (Dateiansicht) 
+
+DATA: gs_data     TYPE zmk_s_adobeform_fdm_01,
+      gs_outparam TYPE sfpoutputparams,
+      gv_funcname TYPE funcname.
+
+SELECTION-SCREEN BEGIN OF BLOCK a1 WITH FRAME TITLE TEXT-001 NO INTERVALS.
+  PARAMETERS: p_carrid TYPE s_carr_id.
+SELECTION-SCREEN END OF BLOCK a1.
+
+START-OF-SELECTION.
+
+" Databaseden veriyi okuyalım ve gerekli yerlere kaydetelim.
+SELECT SINGLE * FROM scarr   INTO gs_data-scarr         WHERE carrid = p_carrid.
+SELECT        * FROM spfli   INTO TABLE gs_data-spfli   WHERE carrid = p_carrid.
+SELECT        * FROM sflight INTO TABLE gs_data-sflight WHERE carrid = p_carrid.
+
+" PDF Oluşturmak icin JOB oluşturalım.
+  CALL FUNCTION 'FP_JOB_OPEN'
+    CHANGING
+      ie_outputparams       = gs_outparam " Kullanılmasa dahi acılması gerekiyor.
+   EXCEPTIONS
+     CANCEL                = 1
+     USAGE_ERROR           = 2
+     SYSTEM_ERROR          = 3
+     INTERNAL_ERROR        = 4
+     OTHERS                = 5 .
+
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+
+" Adobe Formun fonksiyon ismini alalım
+  CALL FUNCTION 'FP_FUNCTION_MODULE_NAME'
+    EXPORTING
+      i_name                     = 'ZMK_S_ADOBEFORM_FDM_01'
+   IMPORTING
+     E_FUNCNAME                 = gv_funcname . " /1BCDWB/SM00000053 : Bir sonraki form bu isimle cağrılıp
+                                                "                      gv_funcname ile değiştirilir
+" Adobe Formun fonksiyonunu cağıralım
+  CALL FUNCTION gv_funcname
+    EXPORTING
+      is_input                 = gs_data
+   EXCEPTIONS
+     USAGE_ERROR              = 1
+     SYSTEM_ERROR             = 2
+     INTERNAL_ERROR           = 3
+     OTHERS                   = 4 .
+
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+
+" PDF Oluşturma işlemi tamamlandı. JOB Kapatalım.
+  CALL FUNCTION 'FP_JOB_CLOSE'
+   EXCEPTIONS
+     USAGE_ERROR          = 1
+     SYSTEM_ERROR         = 2
+     INTERNAL_ERROR       = 3
+     OTHERS               = 4 .
+
+*********************************************************************************************
+*********************************************************************************************
+
+" Öffnen Sie ein PDF-Dokument direkt in der Vorschau
+
+DATA: gs_data     TYPE zmk_s_adobeform_fdm_01,
+      gs_outparam TYPE sfpoutputparams,
+      gv_funcname TYPE funcname.
+
+SELECTION-SCREEN BEGIN OF BLOCK a1 WITH FRAME TITLE TEXT-001 NO INTERVALS.
+  PARAMETERS: p_carrid TYPE s_carr_id.
+SELECTION-SCREEN END OF BLOCK a1.
+
+START-OF-SELECTION.
+
+" Databaseden veriyi okuyalım ve gerekli yerlere kaydetelim.
+SELECT SINGLE * FROM scarr   INTO gs_data-scarr         WHERE carrid = p_carrid.
+SELECT        * FROM spfli   INTO TABLE gs_data-spfli   WHERE carrid = p_carrid.
+SELECT        * FROM sflight INTO TABLE gs_data-sflight WHERE carrid = p_carrid.
+
+" PDF'nin otomatİk acilmasi icin alttaki değerleri girelim.
+gs_outparam-dest     = 'LP01'.
+gs_outparam-nodialog = abap_true.
+gs_outparam-preview  = abap_true.
+
+" PDF Oluşturmak icin JOB oluşturalım.
+  CALL FUNCTION 'FP_JOB_OPEN'
+    CHANGING
+      ie_outputparams       = gs_outparam " Kullanılmasa dahi acılması gerekiyor.
+   EXCEPTIONS
+     CANCEL                = 1
+     USAGE_ERROR           = 2
+     SYSTEM_ERROR          = 3
+     INTERNAL_ERROR        = 4
+     OTHERS                = 5 .
+
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+
+" Adobe Formun fonksiyon ismini alalım
+  CALL FUNCTION 'FP_FUNCTION_MODULE_NAME'
+    EXPORTING
+      i_name                     = 'ZMK_S_ADOBEFORM_FDM_01'
+   IMPORTING
+     E_FUNCNAME                 = gv_funcname . " /1BCDWB/SM00000053 : Bir sonraki form bu isimle cağrılıp
+                                                "                      gv_funcname ile değiştirilir
+" Adobe Formun fonksiyonunu cağıralım
+  CALL FUNCTION gv_funcname
+    EXPORTING
+      is_input                 = gs_data
+   EXCEPTIONS
+     USAGE_ERROR              = 1
+     SYSTEM_ERROR             = 2
+     INTERNAL_ERROR           = 3
+     OTHERS                   = 4 .
+
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+
+" PDF Oluşturma işlemi tamamlandı. JOB Kapatalım.
+  CALL FUNCTION 'FP_JOB_CLOSE'
+   EXCEPTIONS
+     USAGE_ERROR          = 1
+     SYSTEM_ERROR         = 2
+     INTERNAL_ERROR       = 3
+     OTHERS               = 4 .
+
+*************************************************************************************
+*************************************************************************************
+
+" PDF-Dokument ohne Vorschau auf dem Computer speichern
+
+DATA: gs_data     TYPE zmk_s_adobeform_fdm_01,
+      gs_outparam TYPE sfpoutputparams,
+      gv_funcname TYPE funcname,
+      gs_pdf      TYPE fpformoutput,
+      gv_filename TYPE string,
+      gv_path     TYPE string,
+      gv_fullpath TYPE string,
+      gt_data_tab TYPE STANDARD TABLE OF x255.
+
+SELECTION-SCREEN BEGIN OF BLOCK a1 WITH FRAME TITLE TEXT-001 NO INTERVALS.
+  PARAMETERS: p_carrid TYPE s_carr_id.
+SELECTION-SCREEN END OF BLOCK a1.
+
+START-OF-SELECTION.
+
+" Databaseden veriyi okuyalım ve gerekli yerlere kaydetelim.
+SELECT SINGLE * FROM scarr   INTO gs_data-scarr         WHERE carrid = p_carrid.
+SELECT        * FROM spfli   INTO TABLE gs_data-spfli   WHERE carrid = p_carrid.
+SELECT        * FROM sflight INTO TABLE gs_data-sflight WHERE carrid = p_carrid.
+
+" PDF'nin acIlmasın. Ancak veri haline saklanmasını sağlayalım.
+gs_outparam-getpdf = abap_true.
+
+" PDF Oluşturamak icin JOB acalım.
+  CALL FUNCTION 'FP_JOB_OPEN'
+    CHANGING
+      ie_outputparams       = gs_outparam " Kullanılmasa dahi acılması gerekiyor.
+   EXCEPTIONS
+     CANCEL                = 1
+     USAGE_ERROR           = 2
+     SYSTEM_ERROR          = 3
+     INTERNAL_ERROR        = 4
+     OTHERS                = 5 .
+
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+
+" Adobe Formun fonksiyon ismini alalım
+  CALL FUNCTION 'FP_FUNCTION_MODULE_NAME'
+    EXPORTING
+      i_name                     = 'ZMK_S_ADOBEFORM_FDM_01'
+   IMPORTING
+     E_FUNCNAME                 = gv_funcname . " /1BCDWB/SM00000053 : Bir sonraki form bu isimle cağrılıp
+                                                "                      gv_funcname ile değiştirilir
+" Adobe Formun fonksiyonunu cağıralım
+  CALL FUNCTION gv_funcname
+    EXPORTING
+      is_input                 = gs_data
+   EXCEPTIONS
+     USAGE_ERROR              = 1
+     SYSTEM_ERROR             = 2
+     INTERNAL_ERROR           = 3
+     OTHERS                   = 4 .
+
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+
+" PDF Oluşturma işlemi tamamlandı. JOB Kapatalım.
+  CALL FUNCTION 'FP_JOB_CLOSE'
+   EXCEPTIONS
+     USAGE_ERROR          = 1
+     SYSTEM_ERROR         = 2
+     INTERNAL_ERROR       = 3
+     OTHERS               = 4 .
+
+" Gelen PF dosyasını BINARY formatını cevirelim.
+" BINARY formatı sayıslardan oluşan bir veri tipidir.
+  CALL FUNCTION 'SCMS_XSTRING_TO_BINARY'
+    EXPORTING
+      buffer                = gs_pdf-pdf
+    tables
+      binary_tab            = gt_data_tab .
+
+" Kullanıcıya nereye ve hangi isimle kaydetmek istediğini soralım
+  cl_gui_frontend_services=>file_save_dialog(
+    EXPORTING
+      window_title              = 'Dosyayı nereye kaydetmek istersiniz?'
+    CHANGING
+      filename                  = gv_filename
+      path                      = gv_path
+      fullpath                  = gv_fullpath
+    EXCEPTIONS
+      cntl_error                = 1
+      error_no_gui              = 2
+      not_supported_by_gui      = 3
+      invalid_default_file_name = 4
+      others                    = 5 ).
+
+  IF sy-subrc IS NOT INITIAL.
+    BREAK-POINT.
+  ENDIF.
+
+  " Dosyayı kaydetelim.
+
+  cl_gui_frontend_services=>gui_download(
+    EXPORTING
+      filename                  = gv_filename
+      filetype                  = 'BIN'
+    CHANGING
+      data_tab                  = gt_data_tab
+    EXCEPTIONS
+      file_write_error          = 1
+      no_batch                  = 2
+      gui_refuse_filetransfer   = 3
+      invalid_type              = 4
+      no_authority              = 5
+      unknown_error             = 6
+      header_not_allowed        = 7
+      separator_not_allowed     = 8
+      filesize_not_allowed      = 9
+      header_too_long           = 10
+      dp_error_create           = 11
+      dp_error_send             = 12
+      dp_error_write            = 13
+      unknown_dp_error          = 14
+      access_denied             = 15
+      dp_out_of_memory          = 16
+      disk_full                 = 17
+      dp_timeout                = 18
+      file_not_found            = 19
+      dataprovider_exception    = 20
+      control_flush_error       = 21
+      not_supported_by_gui      = 22
+      error_no_gui              = 23
+      others                    = 24 ).
+
+  IF SY-SUBRC IS NOT INITIAL.
+    BREAK-POINT.
+  ENDIF.
+
+**********************************************************************************
+**********************************************************************************
+
+" Versenden eines PDF-Dokuments per E-Mail 
+
+DATA: gs_data     TYPE zmk_s_adobeform_fdm_01,
+      gs_outparam TYPE sfpoutputparams,
+      gv_funcname TYPE funcname,
+      gs_pdf      TYPE fpformoutput,
+      gv_filename TYPE string,
+      gv_path     TYPE string,
+      gv_fullpath TYPE string,
+      gt_data_tab TYPE STANDARD TABLE OF x255,
+      gv_pdf_size TYPE so_obj_len.
+
+SELECTION-SCREEN BEGIN OF BLOCK a1 WITH FRAME TITLE TEXT-001 NO INTERVALS.
+  PARAMETERS: p_carrid TYPE s_carr_id,
+              p_email  TYPE ad_smtpadr.
+SELECTION-SCREEN END OF BLOCK a1.
+
+START-OF-SELECTION.
+
+" Databaseden veriyi okuyalım ve gerekli yerlere kaydetelim.
+SELECT SINGLE * FROM scarr   INTO gs_data-scarr         WHERE carrid = p_carrid.
+SELECT        * FROM spfli   INTO TABLE gs_data-spfli   WHERE carrid = p_carrid.
+SELECT        * FROM sflight INTO TABLE gs_data-sflight WHERE carrid = p_carrid.
+
+" PDF'nin acIlmasın. Ancak veri haline saklanmasını sağlayalım.
+gs_outparam-getpdf = abap_true.
+
+" PDF Oluşturamak icin JOB acalım.
+  CALL FUNCTION 'FP_JOB_OPEN'
+    CHANGING
+      ie_outputparams       = gs_outparam " Kullanılmasa dahi acılması gerekiyor.
+   EXCEPTIONS
+     CANCEL                = 1
+     USAGE_ERROR           = 2
+     SYSTEM_ERROR          = 3
+     INTERNAL_ERROR        = 4
+     OTHERS                = 5 .
+
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+
+" Adobe Formun fonksiyon ismini alalım
+  CALL FUNCTION 'FP_FUNCTION_MODULE_NAME'
+    EXPORTING
+      i_name                     = 'ZMK_S_ADOBEFORM_FDM_01'
+   IMPORTING
+     E_FUNCNAME                 = gv_funcname . " /1BCDWB/SM00000053 : Bir sonraki form bu isimle cağrılıp
+                                                "                      gv_funcname ile değiştirilir
+" Adobe Formun fonksiyonunu cağıralım
+  CALL FUNCTION gv_funcname
+    EXPORTING
+      is_input                 = gs_data
+   EXCEPTIONS
+     USAGE_ERROR              = 1
+     SYSTEM_ERROR             = 2
+     INTERNAL_ERROR           = 3
+     OTHERS                   = 4 .
+
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+
+" PDF Oluşturma işlemi tamamlandı. JOB Kapatalım.
+  CALL FUNCTION 'FP_JOB_CLOSE'
+   EXCEPTIONS
+     USAGE_ERROR          = 1
+     SYSTEM_ERROR         = 2
+     INTERNAL_ERROR       = 3
+     OTHERS               = 4 .
+
+" Gelen PF dosyasını BINARY formatını cevirelim.
+" BINARY formatı sayıslardan oluşan bir veri tipidir.
+  CALL FUNCTION 'SCMS_XSTRING_TO_BINARY'
+    EXPORTING
+      buffer                = gs_pdf-pdf
+    tables
+      binary_tab            = gt_data_tab .
+
+" Kendimize belirli bir bellek tanımlama e_mail gönderme sürecini
+" başlatmak icin gerekli class objesini oluşturur.
+  TRY.
+    DATA(go_send_request) = cl_bcs=>create_persistent( ).
+  CATCH cx_send_req_bcs.
+    BREAK-POINT.
+  ENDTRY.
+
+" Eklenti olarak gönderilecek dökümanın karakter sayısını hesaplayalım.
+
+  gv_pdf_size = xstrlen( gs_pdf-pdf ).
+
+" Eklentideki dosyanın iceriğini oluşturalım.
+  DATA(gt_pdf_content) = cl_document_bcs=>xstring_to_solix( ip_xstring = gs_pdf-pdf ).
+
+" Eklentinin PDF olacağını bildirelim, iceiğini ve karakter sayısını verelim.
+" Ayrıca e_mailin konumunu belirtelim.
+  TRY.
+    DATA(go_document) = cl_document_bcs=>create_document(
+                          i_type         = 'PDF'
+                          i_subject      = CONV #( text-002 )
+                          i_length       = gv_pdf_size
+                          i_hex          = gt_pdf_content ).
+  CATCH cx_document_bcs.
+    BREAK-POINT.
+  ENDTRY.
+
+" Yukarıda oluşturduğumuz bellekteki objeye dokumanı verelim.
+  TRY.
+    go_send_request->set_document( i_document = go_document ).
+  CATCH cx_send_req_bcs..
+    BREAK-POINT.
+  ENDTRY.
+
+" Alıcı oluşturalım.
+  TRY.
+    DATA(go_recipient) = cl_cam_address_bcs=>create_internet_address( i_address_string = p_email ).
+  CATCH cx_address_bcs.
+    BREAK-POINT.
+  ENDTRY.
+
+" Alıcı ekle.
+  TRY.
+    go_send_request->add_recipient(
+      EXPORTING
+        i_recipient  = go_recipient ).
+  CATCH cx_send_req_bcs.
+    BREAK-POINT.
+  ENDTRY.
+
+" E_Mail gönder
+  TRY.
+    DATA(gv_sent_to_all) = go_send_request->send( i_with_error_screen = 'X' ).
+  CATCH cx_send_req_bcs.
+    BREAK-POINT.
+  ENDTRY.
+
+" Sonuca göre mesaj oluştur.
+  IF gv_sent_to_all = 'X'.
+    MESSAGE 'Die Email wurde erfolgreich versendet.' TYPE 'S'.
+    COMMIT WORK.
+  ELSE.
+    MESSAGE 'Die Email wurde nicht erfolgreich versendet.' TYPE 'S' DISPLAY LIKE 'E'.
+  ENDIF.
+
+  
