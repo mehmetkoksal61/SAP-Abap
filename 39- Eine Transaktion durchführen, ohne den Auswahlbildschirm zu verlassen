@@ -1,0 +1,166 @@
+TABLES: sscrfields.
+
+SELECTION-SCREEN BEGIN OF BLOCK a1 WITH FRAME TITLE TEXT-001 NO INTERVALS.
+  SELECTION-SCREEN BEGIN OF LINE.
+
+    SELECTION-SCREEN COMMENT 1(5) TEXT-002. "Saat:
+    SELECTION-SCREEN POSITION 6.
+    PARAMETERS: p_hour TYPE int2 AS LISTBOX VISIBLE LENGTH 6.
+
+    SELECTION-SCREEN COMMENT 15(7) TEXT-003. "Dakika:
+    SELECTION-SCREEN POSITION 22.
+    PARAMETERS: p_mins TYPE int2 AS LISTBOX VISIBLE LENGTH 6.
+
+    SELECTION-SCREEN COMMENT 31(7) TEXT-004. "Dakika:
+    SELECTION-SCREEN POSITION 38.
+    PARAMETERS: p_scnd TYPE int2 AS LISTBOX VISIBLE LENGTH 6.
+
+    SELECTION-SCREEN PUSHBUTTON 46(54) bt1 USER-COMMAND hsp.
+
+  SELECTION-SCREEN END OF LINE.
+SELECTION-SCREEN END OF BLOCK a1.
+
+SELECTION-SCREEN BEGIN OF BLOCK a2 WITH FRAME TITLE TEXT-005 NO INTERVALS.
+  PARAMETERS: p_result TYPE i.
+SELECTION-SCREEN END OF BLOCK a2.
+
+INITIALIZATION. " Selection screen gösterilmeden
+                " önce yapılacak tüm işlemler
+  CALL FUNCTION 'ICON_CREATE'
+    EXPORTING
+      name                  = icon_calculation
+      text                  = TEXT-006
+      info                  = TEXT-007
+    IMPORTING
+      result                = bt1
+    EXCEPTIONS
+      icon_not_found        = 1
+      outputfield_too_short = 2
+      OTHERS                = 3.
+
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+
+  PERFORM dropdown.
+
+AT SELECTION-SCREEN OUTPUT. " Selection screen gösterilmeden
+                            " önce ekran elementleri üzerinde
+                            " yapılacak işlemler.
+  LOOP AT SCREEN.
+    IF p_result IS INITIAL.
+      IF screen-name  = 'P_RESULT' OR
+         screen-name  = '%_P_RESULT_%_APP_%-TEXT'.
+        screen-active = '0'.
+        MODIFY SCREEN.
+      ENDIF.
+    ELSE.
+      IF screen-name = 'P_RESULT'.
+        screen-input = '0'.
+        MODIFY SCREEN.
+      ENDIF.
+    ENDIF.
+  ENDLOOP.
+
+AT SELECTION-SCREEN. " Selection screen icerisinde
+                     " kalarak yapılacak işlemler.
+  CLEAR: p_result.
+
+  CASE sscrfields-ucomm.
+    WHEN 'HSP'.
+      IF p_hour > 0.
+        p_result = p_hour * 3600.
+      ENDIF.
+
+      IF p_mins > 0.
+        p_result = p_result + ( p_mins * 60 ).
+      ENDIF.
+
+      IF p_scnd > 0.
+        p_result = p_result + p_scnd.
+      ENDIF.
+  ENDCASE.
+
+FORM dropdown .
+  DATA: lv_fname  TYPE vrm_id,
+        lt_values TYPE vrm_values,
+        ls_value  TYPE vrm_value,
+        lv_number TYPE i.
+
+  lv_fname = 'P_HOUR'.
+  CLEAR: lv_number, lt_values.
+
+  DO 24 TIMES.
+    lv_number     = lv_number + 1.
+    ls_value-key  = lv_number.
+    ls_value-text = lv_number.
+
+    APPEND ls_value TO lt_values.
+    CLEAR: ls_value.
+  ENDDO.
+
+  CALL FUNCTION 'VRM_SET_VALUES'
+    EXPORTING
+      id                    = lv_fname
+      values                = lt_values
+   EXCEPTIONS
+     ID_ILLEGAL_NAME       = 1
+     OTHERS                = 2 .
+
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+
+  lv_fname = 'P_MINS'.
+  CLEAR: lv_number, lt_values.
+
+  DO 60 TIMES.
+    lv_number     = lv_number + 1.
+    ls_value-key  = lv_number.
+    ls_value-text = lv_number.
+
+    APPEND ls_value TO lt_values.
+    CLEAR: ls_value.
+  ENDDO.
+
+  CALL FUNCTION 'VRM_SET_VALUES'
+    EXPORTING
+      id                    = lv_fname
+      values                = lt_values
+   EXCEPTIONS
+     ID_ILLEGAL_NAME       = 1
+     OTHERS                = 2 .
+
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+
+  lv_fname = 'P_SCND'.
+  CLEAR: lv_number, lt_values.
+
+  DO 60 TIMES.
+    lv_number     = lv_number + 1.
+    ls_value-key  = lv_number.
+    ls_value-text = lv_number.
+
+    APPEND ls_value TO lt_values.
+    CLEAR: ls_value.
+  ENDDO.
+
+  CALL FUNCTION 'VRM_SET_VALUES'
+    EXPORTING
+      id                    = lv_fname
+      values                = lt_values
+   EXCEPTIONS
+     ID_ILLEGAL_NAME       = 1
+     OTHERS                = 2 .
+
+  IF sy-subrc IS NOT INITIAL.
+    LEAVE PROGRAM.
+  ENDIF.
+
+ENDFORM.
+
+
+
+
