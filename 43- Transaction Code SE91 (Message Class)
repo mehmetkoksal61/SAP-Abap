@@ -1,0 +1,84 @@
+SELECTION-SCREEN BEGIN OF BLOCK a1 WITH FRAME TITLE TEXT-001 NO INTERVALS.
+  PARAMETERS: p_basari RADIOBUTTON GROUP abc,
+              p_hata   RADIOBUTTON GROUP abc,
+              p_uyari  RADIOBUTTON GROUP abc,
+              p_bilgi  RADIOBUTTON GROUP abc.
+SELECTION-SCREEN END OF BLOCK a1.
+
+START-OF-SELECTION.
+
+IF p_basari = abap_true.
+  MESSAGE s000(zmk_msg_class).
+ELSEIF p_hata = abap_true.
+  MESSAGE e000(zmk_msg_class).
+ELSEIF p_uyari = abap_true.
+  MESSAGE w000(zmk_msg_class).
+ELSEIF p_bilgi = abap_true.
+  MESSAGE i000(zmk_msg_class).
+ENDIF.
+
+*****************************************************************************
+
+SELECTION-SCREEN BEGIN OF BLOCK a1 WITH FRAME TITLE TEXT-001 NO INTERVALS.
+  PARAMETERS: p_basari RADIOBUTTON GROUP abc,
+              p_hata   RADIOBUTTON GROUP abc,
+              p_uyari  RADIOBUTTON GROUP abc,
+              p_bilgi  RADIOBUTTON GROUP abc.
+SELECTION-SCREEN END OF BLOCK a1.
+
+START-OF-SELECTION.
+
+IF p_basari = abap_true.
+  MESSAGE s011(zmk_msg_class) WITH '1' 'SUCCESS'.
+ELSEIF p_hata = abap_true.
+  MESSAGE e011(zmk_msg_class) WITH '2' 'ERROR'.
+ELSEIF p_uyari = abap_true.
+  MESSAGE w011(zmk_msg_class) WITH '3' 'WARNING'.
+ELSEIF p_bilgi = abap_true.
+  MESSAGE i011(zmk_msg_class) WITH '4' 'INFORMATION'.
+ENDIF.
+
+********************************************************************************
+
+REPORT ZMK_TEST_55 MESSAGE-ID zmk_msg_class.
+
+SELECTION-SCREEN BEGIN OF BLOCK a1 WITH FRAME TITLE TEXT-001 NO INTERVALS.
+  PARAMETERS: p_basari RADIOBUTTON GROUP abc,
+              p_hata   RADIOBUTTON GROUP abc,
+              p_uyari  RADIOBUTTON GROUP abc,
+              p_bilgi  RADIOBUTTON GROUP abc.
+SELECTION-SCREEN END OF BLOCK a1.
+
+START-OF-SELECTION.
+
+IF p_basari = abap_true.
+  MESSAGE s000.
+ELSEIF p_hata = abap_true.
+  MESSAGE e000.
+ELSEIF p_uyari = abap_true.
+  MESSAGE w000.
+ELSEIF p_bilgi = abap_true.
+  MESSAGE i000.
+ENDIF.
+
+*********************************************************************************
+REPORT ZMK_TEST_55 MESSAGE-ID zmk_msg_class.
+
+SELECTION-SCREEN BEGIN OF BLOCK a1 WITH FRAME TITLE TEXT-001 NO INTERVALS.
+  PARAMETERS: p_basari RADIOBUTTON GROUP abc,
+              p_hata   RADIOBUTTON GROUP abc,
+              p_uyari  RADIOBUTTON GROUP abc,
+              p_bilgi  RADIOBUTTON GROUP abc.
+SELECTION-SCREEN END OF BLOCK a1.
+
+START-OF-SELECTION.
+
+IF p_basari = abap_true.
+  MESSAGE s011 WITH '1' 'SUCCESS'.
+ELSEIF p_hata = abap_true.
+  MESSAGE e011 WITH '2' 'ERROR'.
+ELSEIF p_uyari = abap_true.
+  MESSAGE w011 WITH '3' 'WARNING'.
+ELSEIF p_bilgi = abap_true.
+  MESSAGE i011 WITH '4' 'INFORMATION'.
+ENDIF.
